@@ -1,0 +1,18 @@
+---
+IndentWidth: 4
+PackConstructorInitializers: CurrentLine
+NamespaceIndentation: All
+Language: Cpp
+KeepEmptyLinesAtTheStartOfBlocks: false
+AccessModifierOffset: -2
+AlignAfterOpenBracket: AlwaysBreak
+BreakBeforeBraces: Linux
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+IncludeBlocks: Regroup
+FixNamespaceComments: true
+ColumnLimit: 80
+AllowShortFunctionsOnASingleLine: Empty
+IndentCaseLabels: true
+BinPackParameters: false
+BinPackArguments: false
