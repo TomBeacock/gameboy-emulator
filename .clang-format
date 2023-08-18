@@ -12,7 +12,7 @@ SpaceInEmptyParentheses: false
 IncludeBlocks: Regroup
 FixNamespaceComments: true
 ColumnLimit: 80
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Inline
 IndentCaseLabels: true
 BinPackParameters: false
 BinPackArguments: false
