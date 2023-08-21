@@ -11,8 +11,11 @@ SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 IncludeBlocks: Regroup
 FixNamespaceComments: true
-ColumnLimit: 80
-AllowShortFunctionsOnASingleLine: Inline
+ColumnLimit: 100
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
 IndentCaseLabels: true
 BinPackParameters: false
 BinPackArguments: false
+AlwaysBreakAfterReturnType: None
+PenaltyReturnTypeOnItsOwnLine: 1000

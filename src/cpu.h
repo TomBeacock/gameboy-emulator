@@ -1,68 +1,104 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 namespace Gameboy
 {
+    class Memory;
+    class Display;
+
     class CPU
     {
       private:
-        inline uint8_t get_reg8(size_t reg) const { return registers[reg]; }
-        inline void set_reg8(size_t reg, uint8_t val) { registers[reg] = val; }
+        typedef uint8_t Register8;
+        typedef uint16_t Address;
 
-        inline uint16_t get_reg16(size_t hi, size_t lo) const
+        struct Instruction {
+            uint8_t encoding;
+            bool prefixed;
+
+            Instruction(uint8_t encoding, bool prefixed) : encoding(encoding), prefixed(prefixed) {}
+        };
+
+        struct ExecuteResult {
+            Address next_pc;
+            unsigned int cycles;
+
+            ExecuteResult(Address next_pc, unsigned int cycles) : next_pc(next_pc), cycles(cycles)
+            {
+            }
+        };
+
+        class Register16
         {
-            return (uint16_t)registers[hi] << 8 | registers[lo];
-        }
+          public:
+            Register16() : reg_hi(0), reg_lo(0) {}
+            Register16(uint16_t value) : reg_hi(value >> 8), reg_lo(value) {}
 
-        inline void set_reg16(size_t hi, size_t lo, uint16_t value)
-        {
-            registers[hi] = (value & 0xFF00) >> 8;
-            registers[lo] = value & 0x00FF;
-        }
+            Register8 &hi() { return reg_hi; }
+            Register8 hi() const { return reg_hi; }
+            Register8 &lo() { return reg_lo; }
+            Register8 lo() const { return reg_lo; }
 
-        inline uint16_t get_af() const { return get_reg16(Reg_A, Reg_F); }
-        inline void set_af(uint16_t value) { set_reg16(Reg_A, Reg_F, value); };
+            operator uint16_t() const { return (uint16_t)reg_hi << 8 | reg_lo; }
+            Register16 &operator=(uint16_t value)
+            {
+                reg_hi = value >> 8;
+                reg_lo = value;
+                return *this;
+            }
 
-        inline uint16_t get_bc() const { return get_reg16(Reg_B, Reg_C); }
-        inline void set_bc(uint16_t value) { set_reg16(Reg_B, Reg_C, value); };
+          private:
+            Register8 reg_hi;
+            Register8 reg_lo;
+        };
 
-        inline uint16_t get_de() const { return get_reg16(Reg_D, Reg_E); }
-        inline void set_de(uint16_t value) { set_reg16(Reg_D, Reg_E, value); };
+      public:
+        CPU(Memory *memory, Display *display);
 
-        inline uint16_t get_hl() const { return get_reg16(Reg_H, Reg_L); }
-        inline void set_hl(uint16_t value) { set_reg16(Reg_H, Reg_L, value); };
-
-        inline bool get_flag(size_t flag) const
-        {
-            return registers[Reg_F] >> flag & 1;
-        }
-
-        inline void set_flag(size_t flag)
-        {
-            registers[Reg_F] |= 1 << flag;
-        }
-
-        inline void clear_flag(size_t flag)
-        {
-            registers[Reg_F] &= ~(1 << flag);
-        }
+        unsigned int cycle();
 
       private:
-        uint8_t registers[8];
-        uint16_t sp;
-        uint16_t pc;
+        Instruction fetch();
+        ExecuteResult decode(const Instruction &encoding);
+
+        ExecuteResult load_reg_reg(Register8 &dst, Register8 src);
+        ExecuteResult load_reg_n(Register8 &dst);
+        ExecuteResult load_reg_addr(Register8 &dst, Address src);
+        ExecuteResult load_addr_reg(Address dst, Register8 src);
+        ExecuteResult load_hl_n();
+        ExecuteResult load_a_nn();
+        ExecuteResult load_nn_a();
+        ExecuteResult load_a_io_n();
+        ExecuteResult load_io_n_a();
+        ExecuteResult load_a_io_c();
+        ExecuteResult load_io_c_a();
+        ExecuteResult load_incr_hl_a();
+        ExecuteResult load_incr_a_hl();
+        ExecuteResult load_decr_hl_a();
+        ExecuteResult load_decr_a_hl();
+
+        ExecuteResult load_reg_nn(Register16 &dst);
+        ExecuteResult load_nn_sp();
+        ExecuteResult load_sp_hl();
+        ExecuteResult push_reg(Register16 src);
+        ExecuteResult pop_reg(Register16 &dst);
+
+        uint8_t read_next_8() const;
+        uint16_t read_next_16() const;
+
+        bool get_flag(size_t flag) const { return af.lo() >> flag & 1; }
+        void set_flag(size_t flag) { af.lo() |= 1 << flag; }
+        void clear_flag(size_t flag) { af.lo() &= ~(1 << flag); }
 
       private:
-        static constexpr size_t Reg_A = 0;
-        static constexpr size_t Reg_B = 1;
-        static constexpr size_t Reg_C = 2;
-        static constexpr size_t Reg_D = 3;
-        static constexpr size_t Reg_E = 4;
-        static constexpr size_t Reg_F = 5;
-        static constexpr size_t Reg_H = 6;
-        static constexpr size_t Reg_L = 7;
+        Register16 af, bc, de, hl;
+        Register16 sp, pc;
+        Memory *memory;
+        Display *display;
 
+      private:
         static constexpr size_t Flag_Zero = 7;
         static constexpr size_t Flag_Carry = 4;
         static constexpr size_t Flag_Sub = 6;
