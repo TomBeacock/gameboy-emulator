@@ -3,17 +3,6 @@
 #include "display.h"
 #include "memory.h"
 
-#define REG_A registers[0]
-#define REG_B registers[1]
-#define REG_C registers[2]
-#define REG_D registers[3]
-#define REG_E registers[4]
-#define REG_F registers[5]
-#define REG_H registers[6]
-#define REG_L registers[7]
-
-#define REG_AF
-
 namespace Gameboy
 {
     CPU::CPU(Memory *memory, Display *display) : memory(memory), display(display) {}
@@ -308,10 +297,71 @@ namespace Gameboy
         return {pc + 1, 12};
     }
 
+    CPU::ExecuteResult CPU::add_a_reg(Register8 op)
+    {
+        af.hi() = add8(af.hi(), op);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::add_a_n()
+    {
+        uint8_t n = read_next_8();
+        af.hi() = add8(af.hi(), n);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::add_a_hl()
+    {
+        uint8_t op = memory->read(hl);
+        af.hi() = add8(af.hi(), op);
+        return {pc + 1, 8};
+    }
+
+    CPU::ExecuteResult CPU::add_a_reg_carry(Register8 op)
+    {
+        af.hi() = add8_carry(af.hi(), op);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::add_a_n_carry()
+    {
+        uint8_t n = read_next_8();
+        af.hi() = add8_carry(af.hi(), n);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::add_a_hl_carry()
+    {
+        uint8_t op = memory->read(hl);
+        af.hi() = add8_carry(af.hi(), op);
+        return {pc + 1, 8};
+    }
+
     uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
 
     uint16_t CPU::read_next_16() const
     {
         return memory->read(pc + 1) | (uint16_t)memory->read(pc + 2) << 8;
+    }
+
+    uint8_t CPU::add8(uint8_t a, uint8_t b)
+    {
+        uint16_t res = (uint16_t)a + (uint16_t)b;
+        set_zero_flag((uint8_t)res == 0);
+        set_subtract_flag(false);
+        set_half_carry_flag((a & 0x0F) + (b & 0x0F) > 0xF);
+        set_carry_flag(res > 0xFF);
+        return res;
+    }
+
+    uint8_t CPU::add8_carry(uint8_t a, uint8_t b)
+    {
+        uint8_t c = get_carry_flag();
+        uint16_t res = (uint16_t)a + (uint16_t)b + c;
+        set_zero_flag((uint8_t)res == 0);
+        set_subtract_flag(false);
+        set_half_carry_flag((a & 0x0F) + (b & 0x0F) + c > 0xF);
+        set_carry_flag(res > 0xFF);
+        return res;
     }
 } // namespace Gameboy

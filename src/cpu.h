@@ -85,8 +85,26 @@ namespace Gameboy
         ExecuteResult push_reg(Register16 src);
         ExecuteResult pop_reg(Register16 &dst);
 
+        ExecuteResult add_a_reg(Register8 op);
+        ExecuteResult add_a_n();
+        ExecuteResult add_a_hl();
+        ExecuteResult add_a_reg_carry(Register8 op);
+        ExecuteResult add_a_n_carry();
+        ExecuteResult add_a_hl_carry();
+
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
+        uint8_t add8(uint8_t a, uint8_t b);
+        uint8_t add8_carry(uint8_t a, uint8_t b);
+
+        bool get_zero_flag() const { return get_flag(7); }
+        void set_zero_flag(bool value) { value ? set_flag(7) : clear_flag(7); }
+        bool get_subtract_flag() const { return get_flag(6); }
+        void set_subtract_flag(bool value) { value ? set_flag(6) : clear_flag(6); }
+        bool get_half_carry_flag() const { return get_flag(5); }
+        void set_half_carry_flag(bool value) { value ? set_flag(5) : clear_flag(5); }
+        bool get_carry_flag() const { return get_flag(4); }
+        void set_carry_flag(bool value) { value ? set_flag(4) : clear_flag(4); }
 
         bool get_flag(size_t flag) const { return af.lo() >> flag & 1; }
         void set_flag(size_t flag) { af.lo() |= 1 << flag; }
@@ -97,11 +115,5 @@ namespace Gameboy
         Register16 sp, pc;
         Memory *memory;
         Display *display;
-
-      private:
-        static constexpr size_t Flag_Zero = 7;
-        static constexpr size_t Flag_Carry = 4;
-        static constexpr size_t Flag_Sub = 6;
-        static constexpr size_t Flag_HalfCarry = 7;
     };
 } // namespace Gameboy
