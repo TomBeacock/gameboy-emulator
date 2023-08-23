@@ -130,10 +130,45 @@ namespace Gameboy
             case 0x7D: return load_reg_reg(af.hi(), hl.lo());
             case 0x7E: return load_reg_addr(af.hi(), hl);
             case 0x7F: return load_reg_reg(af.hi(), af.hi());
+            case 0x80: return add_a_reg(bc.hi());
+            case 0x81: return add_a_reg(bc.lo());
+            case 0x82: return add_a_reg(de.hi());
+            case 0x83: return add_a_reg(de.lo());
+            case 0x84: return add_a_reg(hl.hi());
+            case 0x85: return add_a_reg(hl.lo());
+            case 0x86: return add_a_hl();
+            case 0x87: return add_a_reg(af.hi());
+            case 0x88: return add_a_reg_carry(bc.hi());
+            case 0x89: return add_a_reg_carry(bc.lo());
+            case 0x8A: return add_a_reg_carry(de.hi());
+            case 0x8B: return add_a_reg_carry(de.lo());
+            case 0x8C: return add_a_reg_carry(hl.hi());
+            case 0x8D: return add_a_reg_carry(hl.lo());
+            case 0x8E: return add_a_hl_carry();
+            case 0x8F: return add_a_reg_carry(af.hi());
+            case 0x90: return sub_a_reg(bc.hi());
+            case 0x91: return sub_a_reg(bc.lo());
+            case 0x92: return sub_a_reg(de.hi());
+            case 0x93: return sub_a_reg(de.lo());
+            case 0x94: return sub_a_reg(hl.hi());
+            case 0x95: return sub_a_reg(hl.lo());
+            case 0x96: return sub_a_hl();
+            case 0x97: return sub_a_reg(af.hi());
+            case 0x98: return sub_a_reg_carry(bc.hi());
+            case 0x99: return sub_a_reg_carry(bc.lo());
+            case 0x9A: return sub_a_reg_carry(de.hi());
+            case 0x9B: return sub_a_reg_carry(de.lo());
+            case 0x9C: return sub_a_reg_carry(hl.hi());
+            case 0x9D: return sub_a_reg_carry(hl.lo());
+            case 0x9E: return sub_a_hl_carry();
+            case 0x9F: return sub_a_reg_carry(af.hi());
 
             case 0xC1: return pop_reg(bc);
 
             case 0xC5: return push_reg(bc);
+            case 0xC6: return add_a_n();
+
+            case 0xCE: return add_a_n_carry();
 
             case 0xD1: return pop_reg(de);
 
@@ -337,6 +372,46 @@ namespace Gameboy
         return {pc + 1, 8};
     }
 
+    CPU::ExecuteResult CPU::sub_a_reg(Register8 op)
+    {
+        af.hi() = sub8(af.hi(), op);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::sub_a_n()
+    {
+        uint8_t n = read_next_8();
+        af.hi() = sub8(af.hi(), n);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::sub_a_hl()
+    {
+        uint8_t op = memory->read(hl);
+        af.hi() = sub8(af.hi(), op);
+        return {pc + 1, 8};
+    }
+
+    CPU::ExecuteResult CPU::sub_a_reg_carry(Register8 op)
+    {
+        af.hi() = sub8_carry(af.hi(), op);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::sub_a_n_carry()
+    {
+        uint8_t n = read_next_8();
+        af.hi() = sub8_carry(af.hi(), n);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::sub_a_hl_carry()
+    {
+        uint8_t op = memory->read(hl);
+        af.hi() = sub8_carry(af.hi(), op);
+        return {pc + 1, 8};
+    }
+
     uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
 
     uint16_t CPU::read_next_16() const
@@ -356,12 +431,33 @@ namespace Gameboy
 
     uint8_t CPU::add8_carry(uint8_t a, uint8_t b)
     {
-        uint8_t c = get_carry_flag();
-        uint16_t res = (uint16_t)a + (uint16_t)b + c;
+        b += get_carry_flag();
+        uint16_t res = (uint16_t)a + (uint16_t)b;
         set_zero_flag((uint8_t)res == 0);
         set_subtract_flag(false);
-        set_half_carry_flag((a & 0x0F) + (b & 0x0F) + c > 0xF);
+        set_half_carry_flag((a & 0x0F) + (b & 0x0F) > 0xF);
         set_carry_flag(res > 0xFF);
+        return res;
+    }
+
+    uint8_t CPU::sub8(uint8_t a, uint8_t b)
+    {
+        uint8_t res = a - b;
+        set_zero_flag(res == 0);
+        set_subtract_flag(true);
+        set_half_carry_flag((a & 0x0F) < (b & 0x0F));
+        set_carry_flag(a < b);
+        return res;
+    }
+
+    uint8_t CPU::sub8_carry(uint8_t a, uint8_t b)
+    {
+        b += get_carry_flag();
+        uint8_t res = a - b;
+        set_zero_flag(res == 0);
+        set_subtract_flag(true);
+        set_half_carry_flag((a & 0x0F) < (b & 0x0F));
+        set_carry_flag(a < b);
         return res;
     }
 } // namespace Gameboy

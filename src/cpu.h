@@ -91,11 +91,19 @@ namespace Gameboy
         ExecuteResult add_a_reg_carry(Register8 op);
         ExecuteResult add_a_n_carry();
         ExecuteResult add_a_hl_carry();
+        ExecuteResult sub_a_reg(Register8 op);
+        ExecuteResult sub_a_n();
+        ExecuteResult sub_a_hl();
+        ExecuteResult sub_a_reg_carry(Register8 op);
+        ExecuteResult sub_a_n_carry();
+        ExecuteResult sub_a_hl_carry();
 
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
         uint8_t add8(uint8_t a, uint8_t b);
         uint8_t add8_carry(uint8_t a, uint8_t b);
+        uint8_t sub8(uint8_t a, uint8_t b);
+        uint8_t sub8_carry(uint8_t a, uint8_t b);
 
         bool get_zero_flag() const { return get_flag(7); }
         void set_zero_flag(bool value) { value ? set_flag(7) : clear_flag(7); }
