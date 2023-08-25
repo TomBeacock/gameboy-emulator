@@ -37,58 +37,61 @@ namespace Gameboy
     CPU::ExecuteResult CPU::decode(const Instruction &instruction)
     {
         switch (instruction.encoding) {
-            case 0x01: return ld_r_nn(bc);
+            case 0x01: return ld_rr_nn(bc);
             case 0x02: return ld_adr_r(bc, A);
-
+            case 0x03: return inc_rr(bc);
             case 0x04: return inc_r(B);
             case 0x05: return dec_r(B);
             case 0x06: return ld_r_n(B);
 
             case 0x08: return ld_nn_sp();
-
+            case 0x09: return add_hl_rr(bc);
             case 0x0A: return ld_r_adr(A, bc);
-
+            case 0x0B: return dec_rr(bc);
             case 0x0C: return inc_r(C);
             case 0x0D: return dec_r(C);
             case 0x0E: return ld_r_n(C);
 
-            case 0x11: return ld_r_nn(de);
+            case 0x11: return ld_rr_nn(de);
             case 0x12: return ld_adr_r(de, A);
-
+            case 0x13: return inc_rr(de);
             case 0x14: return inc_r(D);
             case 0x15: return dec_r(D);
             case 0x16: return ld_r_n(D);
 
+            case 0x19: return add_hl_rr(de);
             case 0x1A: return ld_r_adr(A, de);
-
+            case 0x1B: return dec_rr(de);
             case 0x1C: return inc_r(E);
             case 0x1D: return dec_r(E);
             case 0x1E: return ld_r_n(E);
 
-            case 0x21: return ld_r_nn(hl);
+            case 0x21: return ld_rr_nn(hl);
             case 0x22: return ldi_hl_a();
-
+            case 0x23: return inc_rr(hl);
             case 0x24: return inc_r(H);
             case 0x25: return dec_r(H);
             case 0x26: return ld_r_n(H);
             case 0x27: return daa();
 
+            case 0x29: return add_hl_rr(hl);
             case 0x2A: return ldi_a_hl();
-
+            case 0x2B: return dec_rr(hl);
             case 0x2C: return inc_r(L);
             case 0x2D: return dec_r(L);
             case 0x2E: return ld_r_n(L);
             case 0x2F: return cpl();
 
-            case 0x31: return ld_r_nn(sp);
+            case 0x31: return ld_rr_nn(sp);
             case 0x32: return ldd_hl_a();
-
+            case 0x33: return inc_rr(sp);
             case 0x34: return inc_hl();
             case 0x35: return dec_hl();
             case 0x36: return ld_hl_n();
 
+            case 0x39: return add_hl_rr(sp);
             case 0x3A: return ldd_a_hl();
-
+            case 0x3B: return dec_rr(sp);
             case 0x3C: return inc_r(A);
             case 0x3D: return dec_r(A);
             case 0x3E: return ld_r_n(A);
@@ -240,6 +243,8 @@ namespace Gameboy
             case 0xE5: return push_rr(hl);
             case 0xE6: return and_a_n();
 
+            case 0xE8: return add_sp_dd();
+
             case 0xEA: return ld_nn_a();
             case 0xEE: return xor_a_n();
 
@@ -250,6 +255,7 @@ namespace Gameboy
             case 0xF5: return push_rr(af);
             case 0xF6: return or_a_n();
 
+            case 0xF8: return ld_hl_sp_dd();
             case 0xF9: return ld_sp_hl();
             case 0xFA: return ld_a_nn();
 
@@ -359,7 +365,7 @@ namespace Gameboy
         return {pc + 1, 8};
     }
 
-    CPU::ExecuteResult CPU::ld_r_nn(Register16 &dst)
+    CPU::ExecuteResult CPU::ld_rr_nn(Register16 &dst)
     {
         uint16_t value = read_next_16();
         dst = value;
@@ -612,6 +618,57 @@ namespace Gameboy
         return {pc + 1, 4};
     }
 
+    CPU::ExecuteResult CPU::add_hl_rr(Register16 rr)
+    {
+        hl = add_f(hl, rr);
+        return {pc + 1, 8};
+    }
+
+    CPU::ExecuteResult CPU::inc_rr(Register16 &rr)
+    {
+        rr = rr + 1;
+        return {pc + 1, 8};
+    }
+
+    CPU::ExecuteResult CPU::dec_rr(Register16 &rr)
+    {
+        rr = rr - 1;
+        return {pc + 1, 8};
+    }
+
+    CPU::ExecuteResult CPU::add_sp_dd()
+    {
+        uint8_t op = read_next_8();
+        bool sign = op & 0x80;
+        sp.lo() = add_f(sp.lo(), op);
+        if (get_carry_flag() && !sign) {
+            sp.hi() += 1;
+        }
+        if (!get_carry_flag() && sign) {
+            sp.hi() -= 1;
+        }
+        set_zero_flag(false);
+        set_subtract_flag(false);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::ld_hl_sp_dd()
+    {
+        uint8_t op = read_next_8();
+        bool sign = op & 0x80;
+        hl = sp;
+        hl.lo() = add_f(hl.lo(), op);
+        if (get_carry_flag() && !sign) {
+            hl.hi() += 1;
+        }
+        if (!get_carry_flag() && sign) {
+            hl.hi() -= 1;
+        }
+        set_zero_flag(false);
+        set_subtract_flag(false);
+        return {pc + 2, 12};
+    }
+
     uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
 
     uint16_t CPU::read_next_16() const
@@ -626,6 +683,15 @@ namespace Gameboy
         set_subtract_flag(false);
         set_half_carry_flag((a & 0x0F) + (b & 0x0F) > 0xF);
         set_carry_flag(res > 0xFF);
+        return res;
+    }
+
+    uint16_t CPU::add_f(uint16_t a, uint16_t b)
+    {
+        uint32_t res = (uint32_t)a + (uint32_t)b;
+        set_subtract_flag(false);
+        set_half_carry_flag((((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000);
+        set_carry_flag(res > 0xFFFF);
         return res;
     }
 

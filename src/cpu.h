@@ -81,7 +81,7 @@ namespace Gameboy
         ExecuteResult ldd_a_hl();
 
         // 16-bit load instructions
-        ExecuteResult ld_r_nn(Register16 &dst);
+        ExecuteResult ld_rr_nn(Register16 &dst);
         ExecuteResult ld_nn_sp();
         ExecuteResult ld_sp_hl();
         ExecuteResult push_rr(Register16 src);
@@ -119,9 +119,17 @@ namespace Gameboy
         ExecuteResult daa();
         ExecuteResult cpl();
 
+        // 16-bit arithmetic/logic instructions
+        ExecuteResult add_hl_rr(Register16 rr);
+        ExecuteResult inc_rr(Register16 &rr);
+        ExecuteResult dec_rr(Register16 &rr);
+        ExecuteResult add_sp_dd();
+        ExecuteResult ld_hl_sp_dd();
+
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
         uint8_t add_f(uint8_t a, uint8_t b);
+        uint16_t add_f(uint16_t a, uint16_t b);
         uint8_t adc_f(uint8_t a, uint8_t b);
         uint8_t sub_f(uint8_t a, uint8_t b);
         uint8_t sbc_f(uint8_t a, uint8_t b);
