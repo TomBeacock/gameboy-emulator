@@ -63,47 +63,74 @@ namespace Gameboy
         Instruction fetch();
         ExecuteResult decode(const Instruction &encoding);
 
-        ExecuteResult load_reg_reg(Register8 &dst, Register8 src);
-        ExecuteResult load_reg_n(Register8 &dst);
-        ExecuteResult load_reg_addr(Register8 &dst, Address src);
-        ExecuteResult load_addr_reg(Address dst, Register8 src);
-        ExecuteResult load_hl_n();
-        ExecuteResult load_a_nn();
-        ExecuteResult load_nn_a();
-        ExecuteResult load_a_io_n();
-        ExecuteResult load_io_n_a();
-        ExecuteResult load_a_io_c();
-        ExecuteResult load_io_c_a();
-        ExecuteResult load_incr_hl_a();
-        ExecuteResult load_incr_a_hl();
-        ExecuteResult load_decr_hl_a();
-        ExecuteResult load_decr_a_hl();
+        // 8-bit load instructions
+        ExecuteResult ld_r_r(Register8 &dst, Register8 src);
+        ExecuteResult ld_r_n(Register8 &dst);
+        ExecuteResult ld_r_adr(Register8 &dst, Address src);
+        ExecuteResult ld_adr_r(Address dst, Register8 src);
+        ExecuteResult ld_hl_n();
+        ExecuteResult ld_a_nn();
+        ExecuteResult ld_nn_a();
+        ExecuteResult ld_a_n();
+        ExecuteResult ld_n_a();
+        ExecuteResult ld_a_c();
+        ExecuteResult ld_c_a();
+        ExecuteResult ldi_hl_a();
+        ExecuteResult ldi_a_hl();
+        ExecuteResult ldd_hl_a();
+        ExecuteResult ldd_a_hl();
 
-        ExecuteResult load_reg_nn(Register16 &dst);
-        ExecuteResult load_nn_sp();
-        ExecuteResult load_sp_hl();
-        ExecuteResult push_reg(Register16 src);
-        ExecuteResult pop_reg(Register16 &dst);
+        // 16-bit load instructions
+        ExecuteResult ld_r_nn(Register16 &dst);
+        ExecuteResult ld_nn_sp();
+        ExecuteResult ld_sp_hl();
+        ExecuteResult push_rr(Register16 src);
+        ExecuteResult pop_rr(Register16 &dst);
 
-        ExecuteResult add_a_reg(Register8 op);
+        // 8-bit arithmetic/logic instructions
+        ExecuteResult add_a_r(Register8 op);
         ExecuteResult add_a_n();
         ExecuteResult add_a_hl();
-        ExecuteResult add_a_reg_carry(Register8 op);
-        ExecuteResult add_a_n_carry();
-        ExecuteResult add_a_hl_carry();
-        ExecuteResult sub_a_reg(Register8 op);
+        ExecuteResult adc_a_r(Register8 op);
+        ExecuteResult adc_a_n();
+        ExecuteResult adc_a_hl();
+        ExecuteResult sub_a_r(Register8 op);
         ExecuteResult sub_a_n();
         ExecuteResult sub_a_hl();
-        ExecuteResult sub_a_reg_carry(Register8 op);
-        ExecuteResult sub_a_n_carry();
-        ExecuteResult sub_a_hl_carry();
+        ExecuteResult sbc_a_r(Register8 op);
+        ExecuteResult sbc_a_n();
+        ExecuteResult sbc_a_hl();
+        ExecuteResult and_a_r(Register8 op);
+        ExecuteResult and_a_n();
+        ExecuteResult and_a_hl();
+        ExecuteResult xor_a_r(Register8 op);
+        ExecuteResult xor_a_n();
+        ExecuteResult xor_a_hl();
+        ExecuteResult or_a_r(Register8 op);
+        ExecuteResult or_a_n();
+        ExecuteResult or_a_hl();
+        ExecuteResult cp_a_r(Register8 op);
+        ExecuteResult cp_a_n();
+        ExecuteResult cp_a_hl();
+        ExecuteResult inc_r(Register8& reg);
+        ExecuteResult inc_hl();
+        ExecuteResult dec_r(Register8 &reg);
+        ExecuteResult dec_hl();
+        ExecuteResult daa();
+        ExecuteResult cpl();
 
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
-        uint8_t add8(uint8_t a, uint8_t b);
-        uint8_t add8_carry(uint8_t a, uint8_t b);
-        uint8_t sub8(uint8_t a, uint8_t b);
-        uint8_t sub8_carry(uint8_t a, uint8_t b);
+        uint8_t add_f(uint8_t a, uint8_t b);
+        uint8_t adc_f(uint8_t a, uint8_t b);
+        uint8_t sub_f(uint8_t a, uint8_t b);
+        uint8_t sbc_f(uint8_t a, uint8_t b);
+        uint8_t and_f(uint8_t a, uint8_t b);
+        uint8_t xor_f(uint8_t a, uint8_t b);
+        uint8_t or_f(uint8_t a, uint8_t b);
+        void cp_f(uint8_t a, uint8_t b);
+        uint8_t inc_f(uint8_t a);
+        uint8_t dec_f(uint8_t a);
 
         bool get_zero_flag() const { return get_flag(7); }
         void set_zero_flag(bool value) { value ? set_flag(7) : clear_flag(7); }
