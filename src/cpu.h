@@ -13,13 +13,7 @@ namespace Gameboy
       private:
         typedef uint8_t Register8;
         typedef uint16_t Address;
-
-        struct Instruction {
-            uint8_t encoding;
-            bool prefixed;
-
-            Instruction(uint8_t encoding, bool prefixed) : encoding(encoding), prefixed(prefixed) {}
-        };
+        typedef uint8_t Instruction;
 
         struct ExecuteResult {
             Address next_pc;
@@ -60,8 +54,9 @@ namespace Gameboy
         unsigned int cycle();
 
       private:
-        Instruction fetch();
-        ExecuteResult decode(const Instruction &encoding);
+        Instruction fetch(bool &prefixed);
+        ExecuteResult decode_8bit(Instruction instruction);
+        ExecuteResult decode_16bit(Instruction instruction);
 
         // 8-bit load instructions
         ExecuteResult ld_r_r(Register8 &dst, Register8 src);
@@ -112,7 +107,7 @@ namespace Gameboy
         ExecuteResult cp_a_r(Register8 op);
         ExecuteResult cp_a_n();
         ExecuteResult cp_a_hl();
-        ExecuteResult inc_r(Register8& reg);
+        ExecuteResult inc_r(Register8 &reg);
         ExecuteResult inc_hl();
         ExecuteResult dec_r(Register8 &reg);
         ExecuteResult dec_hl();
@@ -125,6 +120,28 @@ namespace Gameboy
         ExecuteResult dec_rr(Register16 &rr);
         ExecuteResult add_sp_dd();
         ExecuteResult ld_hl_sp_dd();
+
+        // Rotate and shift instructions
+        ExecuteResult rlca();
+        ExecuteResult rla();
+        ExecuteResult rrca();
+        ExecuteResult rra();
+        ExecuteResult rlc_r(Register8 &r);
+        ExecuteResult rlc_hl();
+        ExecuteResult rl_r(Register8 &r);
+        ExecuteResult rl_hl();
+        ExecuteResult rrc_r(Register8 &r);
+        ExecuteResult rrc_hl();
+        ExecuteResult rr_r(Register8 &r);
+        ExecuteResult rr_hl();
+        ExecuteResult sla_r(Register8 &r);
+        ExecuteResult sla_hl();
+        ExecuteResult sra_r(Register8 &r);
+        ExecuteResult sra_hl();
+        ExecuteResult srl_r(Register8 &r);
+        ExecuteResult srl_hl();
+        ExecuteResult swap_r(Register8 &r);
+        ExecuteResult swap_hl();
 
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
@@ -140,18 +157,17 @@ namespace Gameboy
         uint8_t inc_f(uint8_t a);
         uint8_t dec_f(uint8_t a);
 
-        bool get_zero_flag() const { return get_flag(7); }
-        void set_zero_flag(bool value) { value ? set_flag(7) : clear_flag(7); }
-        bool get_subtract_flag() const { return get_flag(6); }
-        void set_subtract_flag(bool value) { value ? set_flag(6) : clear_flag(6); }
-        bool get_half_carry_flag() const { return get_flag(5); }
-        void set_half_carry_flag(bool value) { value ? set_flag(5) : clear_flag(5); }
-        bool get_carry_flag() const { return get_flag(4); }
-        void set_carry_flag(bool value) { value ? set_flag(4) : clear_flag(4); }
+        bool get_flag_z() const { return get_flag(7); }
+        void set_flag_z(bool value) { set_flag(7, value); }
+        bool get_flag_n() const { return get_flag(6); }
+        void set_flag_n(bool value) { set_flag(6, value); }
+        bool get_flag_h() const { return get_flag(5); }
+        void set_flag_h(bool value) { set_flag(5, value); }
+        bool get_flag_c() const { return get_flag(4); }
+        void set_flag_c(bool value) { set_flag(4, value); }
 
-        bool get_flag(size_t flag) const { return af.lo() >> flag & 1; }
-        void set_flag(size_t flag) { af.lo() |= 1 << flag; }
-        void clear_flag(size_t flag) { af.lo() &= ~(1 << flag); }
+        bool get_flag(uint8_t flag) const { return af.lo() >> flag & 1; }
+        void set_flag(uint8_t flag, bool value) { af.lo() = (af.lo() & ~(1 << flag)) | (value << flag); }
 
       private:
         Register16 af, bc, de, hl;

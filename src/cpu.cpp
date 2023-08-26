@@ -12,38 +12,45 @@
 #define H hl.hi()
 #define L hl.lo()
 
+#define BIT_0(n) (n & 0b00000001)
+#define BIT_7(n) (n & 0b10000000)
+
+#define HI(n) (n & 0xF0)
+#define LO(n) (n & 0x0F)
+
 namespace Gameboy
 {
     CPU::CPU(Memory *memory, Display *display) : memory(memory), display(display) {}
 
     unsigned int CPU::cycle()
     {
-        Instruction instruction = fetch();
-        ExecuteResult result = decode(instruction);
+        bool prefixed;
+        Instruction instruction = fetch(prefixed);
+        ExecuteResult result = prefixed ? decode_16bit(instruction) : decode_8bit(instruction);
         pc = result.next_pc;
         return result.cycles;
     }
 
-    CPU::Instruction CPU::fetch()
+    CPU::Instruction CPU::fetch(bool &prefixed)
     {
         uint8_t inst = memory->read(pc);
-        bool prefixed = inst == 0xCB;
+        prefixed = inst == 0xCB;
         if (prefixed) {
             inst = memory->read(pc + 1);
         }
-        return {inst, prefixed};
+        return inst;
     }
 
-    CPU::ExecuteResult CPU::decode(const Instruction &instruction)
+    CPU::ExecuteResult CPU::decode_8bit(Instruction instruction)
     {
-        switch (instruction.encoding) {
+        switch (instruction) {
             case 0x01: return ld_rr_nn(bc);
             case 0x02: return ld_adr_r(bc, A);
             case 0x03: return inc_rr(bc);
             case 0x04: return inc_r(B);
             case 0x05: return dec_r(B);
             case 0x06: return ld_r_n(B);
-
+            case 0x07: return rlca();
             case 0x08: return ld_nn_sp();
             case 0x09: return add_hl_rr(bc);
             case 0x0A: return ld_r_adr(A, bc);
@@ -51,6 +58,7 @@ namespace Gameboy
             case 0x0C: return inc_r(C);
             case 0x0D: return dec_r(C);
             case 0x0E: return ld_r_n(C);
+            case 0x0F: return rrca();
 
             case 0x11: return ld_rr_nn(de);
             case 0x12: return ld_adr_r(de, A);
@@ -58,6 +66,7 @@ namespace Gameboy
             case 0x14: return inc_r(D);
             case 0x15: return dec_r(D);
             case 0x16: return ld_r_n(D);
+            case 0x17: return rla();
 
             case 0x19: return add_hl_rr(de);
             case 0x1A: return ld_r_adr(A, de);
@@ -65,6 +74,7 @@ namespace Gameboy
             case 0x1C: return inc_r(E);
             case 0x1D: return dec_r(E);
             case 0x1E: return ld_r_n(E);
+            case 0x1F: return rra();
 
             case 0x21: return ld_rr_nn(hl);
             case 0x22: return ldi_hl_a();
@@ -262,6 +272,76 @@ namespace Gameboy
             case 0xFE: return cp_a_n();
 
             default: break;
+        }
+    }
+
+    CPU::ExecuteResult CPU::decode_16bit(Instruction instruction)
+    {
+        switch (instruction) {
+            case 0x00: return rlc_r(B);
+            case 0x01: return rlc_r(C);
+            case 0x02: return rlc_r(D);
+            case 0x03: return rlc_r(E);
+            case 0x04: return rlc_r(H);
+            case 0x05: return rlc_r(L);
+            case 0x06: return rlc_hl();
+            case 0x07: return rlc_r(A);
+            case 0x08: return rrc_r(B);
+            case 0x09: return rrc_r(C);
+            case 0x0A: return rrc_r(D);
+            case 0x0B: return rrc_r(E);
+            case 0x0C: return rrc_r(H);
+            case 0x0D: return rrc_r(L);
+            case 0x0E: return rrc_hl();
+            case 0x0F: return rrc_r(A);
+            case 0x10: return rl_r(B);
+            case 0x11: return rl_r(C);
+            case 0x12: return rl_r(D);
+            case 0x13: return rl_r(E);
+            case 0x14: return rl_r(H);
+            case 0x15: return rl_r(L);
+            case 0x16: return rl_hl();
+            case 0x17: return rl_r(A);
+            case 0x18: return rr_r(B);
+            case 0x19: return rr_r(C);
+            case 0x1A: return rr_r(D);
+            case 0x1B: return rr_r(E);
+            case 0x1C: return rr_r(H);
+            case 0x1D: return rr_r(L);
+            case 0x1E: return rr_hl();
+            case 0x1F: return rr_r(A);
+            case 0x20: return sla_r(B);
+            case 0x21: return sla_r(C);
+            case 0x22: return sla_r(D);
+            case 0x23: return sla_r(E);
+            case 0x24: return sla_r(H);
+            case 0x25: return sla_r(L);
+            case 0x26: return sla_hl();
+            case 0x27: return sla_r(A);
+            case 0x28: return sra_r(B);
+            case 0x29: return sra_r(C);
+            case 0x2A: return sra_r(D);
+            case 0x2B: return sra_r(E);
+            case 0x2C: return sra_r(H);
+            case 0x2D: return sra_r(L);
+            case 0x2E: return sra_hl();
+            case 0x2F: return sra_r(A);
+            case 0x30: return swap_r(B);
+            case 0x31: return swap_r(C);
+            case 0x32: return swap_r(D);
+            case 0x33: return swap_r(E);
+            case 0x34: return swap_r(H);
+            case 0x35: return swap_r(L);
+            case 0x36: return swap_hl();
+            case 0x37: return swap_r(A);
+            case 0x38: return srl_r(B);
+            case 0x39: return srl_r(C);
+            case 0x3A: return srl_r(D);
+            case 0x3B: return srl_r(E);
+            case 0x3C: return srl_r(H);
+            case 0x3D: return srl_r(L);
+            case 0x3E: return srl_hl();
+            case 0x3F: return srl_r(A);
         }
     }
 
@@ -590,31 +670,31 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::daa()
     {
-        if (get_subtract_flag()) {
-            if (get_carry_flag()) {
+        if (get_flag_n()) {
+            if (get_flag_c()) {
                 A -= 0x60;
             }
-            if (get_half_carry_flag()) {
+            if (get_flag_h()) {
                 A -= 0x6;
             }
         } else {
-            if (get_carry_flag() || A > 0x99) {
+            if (get_flag_c() || A > 0x99) {
                 A += 0x60;
-                set_carry_flag(1);
+                set_flag_c(1);
             }
-            if (get_half_carry_flag() || (A & 0xF) > 0x09) {
+            if (get_flag_h() || LO(A) > 0x09) {
                 A += 0x6;
             }
         }
-        set_zero_flag(A == 0);
-        set_half_carry_flag(false);
+        set_flag_z(A == 0);
+        set_flag_h(false);
     }
 
     CPU::ExecuteResult CPU::cpl()
     {
         A ^= 0xFF;
-        set_subtract_flag(true);
-        set_half_carry_flag(true);
+        set_flag_n(true);
+        set_flag_h(true);
         return {pc + 1, 4};
     }
 
@@ -639,16 +719,16 @@ namespace Gameboy
     CPU::ExecuteResult CPU::add_sp_dd()
     {
         uint8_t op = read_next_8();
-        bool sign = op & 0x80;
+        bool sign = BIT_7(op);
         sp.lo() = add_f(sp.lo(), op);
-        if (get_carry_flag() && !sign) {
+        if (get_flag_c() && !sign) {
             sp.hi() += 1;
         }
-        if (!get_carry_flag() && sign) {
+        if (!get_flag_c() && sign) {
             sp.hi() -= 1;
         }
-        set_zero_flag(false);
-        set_subtract_flag(false);
+        set_flag_z(false);
+        set_flag_n(false);
         return {pc + 2, 16};
     }
 
@@ -658,15 +738,238 @@ namespace Gameboy
         bool sign = op & 0x80;
         hl = sp;
         hl.lo() = add_f(hl.lo(), op);
-        if (get_carry_flag() && !sign) {
+        if (get_flag_c() && !sign) {
             hl.hi() += 1;
         }
-        if (!get_carry_flag() && sign) {
+        if (!get_flag_c() && sign) {
             hl.hi() -= 1;
         }
-        set_zero_flag(false);
-        set_subtract_flag(false);
+        set_flag_z(false);
+        set_flag_n(false);
         return {pc + 2, 12};
+    }
+
+    CPU::ExecuteResult CPU::rlca()
+    {
+        set_flag_z(false);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(A));
+        A = (A << 1) | BIT_7(A) >> 7;
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::rla()
+    {
+        uint8_t carry = get_flag_c();
+        set_flag_z(false);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(A));
+        A = (A << 1) | carry;
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::rrca()
+    {
+        set_flag_z(false);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_0(A));
+        A = (A >> 1) | BIT_0(A) << 7;
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::rra()
+    {
+        uint8_t carry = get_flag_c();
+        set_flag_z(false);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_0(A));
+        A = (A >> 1) | (carry << 7);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::rlc_r(Register8 &r)
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(r));
+        r = (r << 1) | BIT_7(r) >> 7;
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::rlc_hl()
+    {
+        uint8_t op = memory->read(hl);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(op));
+        op = (op << 1) | BIT_7(op) >> 7;
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::rl_r(Register8 &r)
+    {
+        uint8_t carry = get_flag_c();
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(r));
+        r = (r << 1) | carry;
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::rl_hl()
+    {
+        uint8_t op = memory->read(hl);
+        uint8_t carry = get_flag_c();
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(op));
+        op = (op << 1) | carry;
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::rrc_r(Register8 &r)
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_0(r));
+        r = (r >> 1) | BIT_0(r) << 7;
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::rrc_hl()
+    {
+        uint8_t op = memory->read(hl);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_0(op));
+        op = (op >> 1) | BIT_0(op) << 7;
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::rr_r(Register8 &r)
+    {
+        uint8_t carry = get_flag_c();
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_0(r));
+        r = (r >> 1) | (carry << 7);
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::rr_hl()
+    {
+        uint8_t op = memory->read(hl);
+        uint8_t carry = get_flag_c();
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_0(op));
+        op = (op >> 1) | (carry << 7);
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::sla_r(Register8 &r)
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(r));
+        r = r << 1;
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::sla_hl()
+    {
+        uint8_t op = memory->read(hl);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(op));
+        op = op << 1;
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::sra_r(Register8 &r)
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(r));
+        r = r >> 1 | BIT_7(r);
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::sra_hl()
+    {
+        uint8_t op = memory->read(hl);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(op));
+        op = op >> 1 | BIT_7(op);
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::srl_r(Register8 &r)
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(r));
+        r = r >> 1;
+        set_flag_z(r == 0);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::srl_hl()
+    {
+        uint8_t op = memory->read(hl);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(BIT_7(op));
+        op = op >> 1;
+        set_flag_z(op == 0);
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::swap_r(Register8 &r)
+    {
+        uint8_t hi = HI(r);
+        r = r << 4 | hi;
+        set_flag_z(r == 0);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(false);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::swap_hl()
+    {
+        uint8_t op = memory->read(op);
+        uint8_t hi = HI(op);
+        op = op << 4 | hi;
+        set_flag_z(op == 0);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(false);
+        return {pc + 2, 16};
     }
 
     uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
@@ -679,108 +982,108 @@ namespace Gameboy
     uint8_t CPU::add_f(uint8_t a, uint8_t b)
     {
         uint16_t res = (uint16_t)a + (uint16_t)b;
-        set_zero_flag((uint8_t)res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag((a & 0x0F) + (b & 0x0F) > 0xF);
-        set_carry_flag(res > 0xFF);
+        set_flag_z((uint8_t)res == 0);
+        set_flag_n(false);
+        set_flag_h(LO(a) + LO(b) > 0xF);
+        set_flag_c(res > 0xFF);
         return res;
     }
 
     uint16_t CPU::add_f(uint16_t a, uint16_t b)
     {
         uint32_t res = (uint32_t)a + (uint32_t)b;
-        set_subtract_flag(false);
-        set_half_carry_flag((((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000);
-        set_carry_flag(res > 0xFFFF);
+        set_flag_n(false);
+        set_flag_h((((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000);
+        set_flag_c(res > 0xFFFF);
         return res;
     }
 
     uint8_t CPU::adc_f(uint8_t a, uint8_t b)
     {
-        b += get_carry_flag();
+        b += get_flag_c();
         uint16_t res = (uint16_t)a + (uint16_t)b;
-        set_zero_flag((uint8_t)res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag((a & 0x0F) + (b & 0x0F) > 0xF);
-        set_carry_flag(res > 0xFF);
+        set_flag_z((uint8_t)res == 0);
+        set_flag_n(false);
+        set_flag_h(LO(a) + LO(b) > 0xF);
+        set_flag_c(res > 0xFF);
         return res;
     }
 
     uint8_t CPU::sub_f(uint8_t a, uint8_t b)
     {
         uint8_t res = a - b;
-        set_zero_flag(res == 0);
-        set_subtract_flag(true);
-        set_half_carry_flag((a & 0x0F) < (b & 0x0F));
-        set_carry_flag(a < b);
+        set_flag_z(res == 0);
+        set_flag_n(true);
+        set_flag_h(LO(a) < LO(b));
+        set_flag_c(a < b);
         return res;
     }
 
     uint8_t CPU::sbc_f(uint8_t a, uint8_t b)
     {
-        b += get_carry_flag();
+        b += get_flag_c();
         uint8_t res = a - b;
-        set_zero_flag(res == 0);
-        set_subtract_flag(true);
-        set_half_carry_flag((a & 0x0F) < (b & 0x0F));
-        set_carry_flag(a < b);
+        set_flag_z(res == 0);
+        set_flag_n(true);
+        set_flag_h(LO(a) < LO(b));
+        set_flag_c(a < b);
         return res;
     }
 
     uint8_t CPU::and_f(uint8_t a, uint8_t b)
     {
         uint8_t res = a & b;
-        set_zero_flag(res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag(true);
-        set_carry_flag(false);
+        set_flag_z(res == 0);
+        set_flag_n(false);
+        set_flag_h(true);
+        set_flag_c(false);
         return res;
     }
 
     uint8_t CPU::xor_f(uint8_t a, uint8_t b)
     {
         uint8_t res = a ^ b;
-        set_zero_flag(res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag(false);
-        set_carry_flag(false);
+        set_flag_z(res == 0);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(false);
         return res;
     }
 
     uint8_t CPU::or_f(uint8_t a, uint8_t b)
     {
         uint8_t res = a | b;
-        set_zero_flag(res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag(false);
-        set_carry_flag(false);
+        set_flag_z(res == 0);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(false);
         return res;
     }
 
     void CPU::cp_f(uint8_t a, uint8_t b)
     {
         uint8_t res = a - b;
-        set_zero_flag(res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag((a & 0x0F) < (b & 0x0F));
-        set_carry_flag(a < b);
+        set_flag_z(res == 0);
+        set_flag_n(false);
+        set_flag_h(LO(a) < LO(b));
+        set_flag_c(a < b);
     }
 
     uint8_t CPU::inc_f(uint8_t a)
     {
         uint8_t res = a + 1;
-        set_zero_flag(res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag((a & 0xF) + 1 > 0xF);
+        set_flag_z(res == 0);
+        set_flag_n(false);
+        set_flag_h(LO(a) + 1 > 0xF);
         return res;
     }
 
     uint8_t CPU::dec_f(uint8_t a)
     {
         uint8_t res = a - 1;
-        set_zero_flag(res == 0);
-        set_subtract_flag(false);
-        set_half_carry_flag((a & 0xF) < 1);
+        set_flag_z(res == 0);
+        set_flag_n(false);
+        set_flag_h(LO(a) < 1);
         return res;
     }
 } // namespace Gameboy
