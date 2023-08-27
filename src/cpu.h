@@ -160,6 +160,19 @@ namespace Gameboy
         ExecuteResult di();
         ExecuteResult ei();
 
+        // Jump instructions
+        ExecuteResult jp_nn();
+        ExecuteResult jp_hl();
+        ExecuteResult jp_f_nn(uint8_t flag, bool value);
+        ExecuteResult jr_dd();
+        ExecuteResult jr_f_dd(uint8_t flag, bool value);
+        ExecuteResult call_nn();
+        ExecuteResult call_f_nn(uint8_t flag, bool value);
+        ExecuteResult ret();
+        ExecuteResult ret_f(uint8_t flag, bool value);
+        ExecuteResult reti();
+        ExecuteResult rst_n(uint8_t n);
+
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
         uint8_t add_f(uint8_t a, uint8_t b);

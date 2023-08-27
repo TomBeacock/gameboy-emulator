@@ -12,6 +12,11 @@
 #define H hl.hi()
 #define L hl.lo()
 
+#define FLAG_Z 7
+#define FLAG_N 6
+#define FLAG_H 5
+#define FLAG_C 4
+
 #define BIT_0(n) (n & 0b00000001)
 #define BIT_7(n) (n & 0b10000000)
 
@@ -68,7 +73,7 @@ namespace Gameboy
             case 0x15: return dec_r(D);
             case 0x16: return ld_r_n(D);
             case 0x17: return rla();
-
+            case 0x18: return jr_dd(); 
             case 0x19: return add_hl_rr(de);
             case 0x1A: return ld_r_adr(A, de);
             case 0x1B: return dec_rr(de);
@@ -76,7 +81,7 @@ namespace Gameboy
             case 0x1D: return dec_r(E);
             case 0x1E: return ld_r_n(E);
             case 0x1F: return rra();
-
+            case 0x20: return jr_f_dd(FLAG_Z, false);
             case 0x21: return ld_rr_nn(hl);
             case 0x22: return ldi_hl_a();
             case 0x23: return inc_rr(hl);
@@ -84,7 +89,7 @@ namespace Gameboy
             case 0x25: return dec_r(H);
             case 0x26: return ld_r_n(H);
             case 0x27: return daa();
-
+            case 0x28: return jr_f_dd(FLAG_Z, true);
             case 0x29: return add_hl_rr(hl);
             case 0x2A: return ldi_a_hl();
             case 0x2B: return dec_rr(hl);
@@ -92,7 +97,7 @@ namespace Gameboy
             case 0x2D: return dec_r(L);
             case 0x2E: return ld_r_n(L);
             case 0x2F: return cpl();
-
+            case 0x30: return jr_f_dd(FLAG_C, false);
             case 0x31: return ld_rr_nn(sp);
             case 0x32: return ldd_hl_a();
             case 0x33: return inc_rr(sp);
@@ -100,7 +105,7 @@ namespace Gameboy
             case 0x35: return dec_hl();
             case 0x36: return ld_hl_n();
             case 0x37: return scf();
-
+            case 0x38: return jr_f_dd(FLAG_C, true);
             case 0x39: return add_hl_rr(sp);
             case 0x3A: return ldd_a_hl();
             case 0x3B: return dec_rr(sp);
@@ -236,43 +241,58 @@ namespace Gameboy
             case 0xBD: return cp_a_r(L);
             case 0xBE: return cp_a_hl();
             case 0xBF: return cp_a_r(A);
-
+            case 0xC0: return ret_f(FLAG_Z, false);
             case 0xC1: return pop_rr(bc);
-
+            case 0xC2: return jp_f_nn(FLAG_Z, false);
+            case 0xC3: return jp_nn();
+            case 0xC4: return call_f_nn(FLAG_Z, false);
             case 0xC5: return push_rr(bc);
             case 0xC6: return add_a_n();
-
+            case 0xC7: return rst_n(0x00);
+            case 0xC8: return ret_f(FLAG_Z, true);
+            case 0xC9: return ret();
+            case 0xCA: return jp_f_nn(FLAG_Z, true);
+            case 0xCC: return call_f_nn(FLAG_Z, true);
+            case 0xCD: return call_nn();
             case 0xCE: return adc_a_n();
-
+            case 0xCF: return rst_n(0x08);
+            case 0xD0: return ret_f(FLAG_C, false);
             case 0xD1: return pop_rr(de);
-
+            case 0xD2: return jp_f_nn(FLAG_C, false);
+            case 0xD4: return call_f_nn(FLAG_C, false);
             case 0xD5: return push_rr(de);
-
+            case 0xD6: return sub_a_n();
+            case 0xD7: return rst_n(0x10);
+            case 0xD8: return ret_f(FLAG_C, true);
+            case 0xD9: return reti();
+            case 0xDA: return jp_f_nn(FLAG_C, true);
+            case 0xDC: return call_f_nn(FLAG_C, true);
+            case 0xDE: return sbc_a_n();
+            case 0xDF: return rst_n(0x18);
             case 0xE0: return ld_n_a();
             case 0xE1: return pop_rr(hl);
             case 0xE2: return ld_c_a();
-
             case 0xE5: return push_rr(hl);
             case 0xE6: return and_a_n();
-
+            case 0xE7: return rst_n(0x20);
             case 0xE8: return add_sp_dd();
-
+            case 0xE9: return jp_hl();
             case 0xEA: return ld_nn_a();
             case 0xEE: return xor_a_n();
-
+            case 0xEF: return rst_n(0x28);
             case 0xF0: return ld_a_n();
             case 0xF1: return pop_rr(af);
             case 0xF2: return ld_a_c();
             case 0xF3: return di();
             case 0xF5: return push_rr(af);
             case 0xF6: return or_a_n();
-
+            case 0xF7: return rst_n(0x30);
             case 0xF8: return ld_hl_sp_dd();
             case 0xF9: return ld_sp_hl();
             case 0xFA: return ld_a_nn();
             case 0xFB: return ei();
             case 0xFE: return cp_a_n();
-
+            case 0xFF: return rst_n(0x38);
             default: break;
         }
     }
@@ -1255,11 +1275,96 @@ namespace Gameboy
         return {pc + 1, 4};
     }
 
+    CPU::ExecuteResult CPU::jp_nn()
+    {
+        uint16_t nn = read_next_16();
+        return {nn, 16};
+    }
+
+    CPU::ExecuteResult CPU::jp_hl() { return {hl, 4}; }
+
+    CPU::ExecuteResult CPU::jp_f_nn(uint8_t flag, bool value)
+    {
+        if (get_flag(flag) == value) {
+            return jp_nn();
+        }
+        return {pc + 3, 12};
+    }
+
+    CPU::ExecuteResult CPU::jr_dd()
+    {
+        int8_t dd = read_next_8();
+        return {pc + dd, 12};
+    }
+
+    CPU::ExecuteResult CPU::jr_f_dd(uint8_t flag, bool value)
+    {
+        if (get_flag(flag) == value) {
+            return jr_dd();
+        }
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::call_nn()
+    {
+        Register16 return_pc = pc + 3;
+        memory->write(sp - 1, return_pc.hi());
+        memory->write(sp - 2, return_pc.lo());
+        sp = sp - 2;
+
+        uint16_t nn = read_next_16();
+        return {nn, 24};
+    }
+
+    CPU::ExecuteResult CPU::call_f_nn(uint8_t flag, bool value)
+    {
+        if (get_flag(flag) == value) {
+            return call_nn();
+        }
+        return {pc + 3, 12};
+    }
+
+    CPU::ExecuteResult CPU::ret()
+    {
+        Register16 return_pc;
+        return_pc.lo() = memory->read(sp);
+        return_pc.hi() = memory->read(sp + 1);
+        sp = sp + 2;
+        return {return_pc, 16};
+    }
+
+    CPU::ExecuteResult CPU::ret_f(uint8_t flag, bool value)
+    {
+        if (get_flag(flag) == value) {
+            Register16 return_pc;
+            return_pc.lo() = memory->read(sp);
+            return_pc.hi() = memory->read(sp + 1);
+            sp = sp + 2;
+            return {return_pc, 20};
+        }
+        return {pc + 1, 8};
+    }
+
+    CPU::ExecuteResult CPU::reti()
+    {
+        ime = true;
+        return ret();
+    }
+
+    CPU::ExecuteResult CPU::rst_n(uint8_t n)
+    {
+        Register16 return_pc = pc + 1;
+        memory->write(sp - 1, return_pc.hi());
+        memory->write(sp - 2, return_pc.lo());
+        sp = sp - 2;
+        return {n, 24};
+    }
+
     uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
 
     uint16_t CPU::read_next_16() const
     {
-        return memory->read(pc + 1) | (uint16_t)memory->read(pc + 2) << 8;
+        return (uint16_t)memory->read(pc + 1) | (uint16_t)memory->read(pc + 2) << 8;
     }
 
     uint8_t CPU::add_f(uint8_t a, uint8_t b)
