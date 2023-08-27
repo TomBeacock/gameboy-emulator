@@ -151,6 +151,15 @@ namespace Gameboy
         ExecuteResult res_n_r(uint8_t n, Register8 &r);
         ExecuteResult res_n_hl(uint8_t n);
 
+        // CPU control instructions
+        ExecuteResult ccf();
+        ExecuteResult scf();
+        ExecuteResult nop();
+        ExecuteResult halt();
+        ExecuteResult stop();
+        ExecuteResult di();
+        ExecuteResult ei();
+
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
         uint8_t add_f(uint8_t a, uint8_t b);
@@ -175,11 +184,15 @@ namespace Gameboy
         void set_flag_c(bool value) { set_flag(4, value); }
 
         bool get_flag(uint8_t flag) const { return af.lo() >> flag & 1; }
-        void set_flag(uint8_t flag, bool value) { af.lo() = (af.lo() & ~(1 << flag)) | (value << flag); }
+        void set_flag(uint8_t flag, bool value)
+        {
+            af.lo() = (af.lo() & ~(1 << flag)) | (value << flag);
+        }
 
       private:
         Register16 af, bc, de, hl;
         Register16 sp, pc;
+        bool ime;
         Memory *memory;
         Display *display;
     };

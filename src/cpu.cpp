@@ -44,6 +44,7 @@ namespace Gameboy
     CPU::ExecuteResult CPU::decode_8bit(Instruction instruction)
     {
         switch (instruction) {
+            case 0x00: return nop();
             case 0x01: return ld_rr_nn(bc);
             case 0x02: return ld_adr_r(bc, A);
             case 0x03: return inc_rr(bc);
@@ -59,7 +60,7 @@ namespace Gameboy
             case 0x0D: return dec_r(C);
             case 0x0E: return ld_r_n(C);
             case 0x0F: return rrca();
-
+            case 0x10: return stop();
             case 0x11: return ld_rr_nn(de);
             case 0x12: return ld_adr_r(de, A);
             case 0x13: return inc_rr(de);
@@ -98,6 +99,7 @@ namespace Gameboy
             case 0x34: return inc_hl();
             case 0x35: return dec_hl();
             case 0x36: return ld_hl_n();
+            case 0x37: return scf();
 
             case 0x39: return add_hl_rr(sp);
             case 0x3A: return ldd_a_hl();
@@ -105,7 +107,7 @@ namespace Gameboy
             case 0x3C: return inc_r(A);
             case 0x3D: return dec_r(A);
             case 0x3E: return ld_r_n(A);
-
+            case 0x3F: return ccf();
             case 0x40: return ld_r_r(B, B);
             case 0x41: return ld_r_r(B, C);
             case 0x42: return ld_r_r(B, D);
@@ -160,7 +162,7 @@ namespace Gameboy
             case 0x73: return ld_adr_r(hl, E);
             case 0x74: return ld_adr_r(hl, H);
             case 0x75: return ld_adr_r(hl, L);
-
+            case 0x76: return halt();
             case 0x77: return ld_adr_r(hl, A);
             case 0x78: return ld_r_r(A, B);
             case 0x79: return ld_r_r(A, C);
@@ -261,14 +263,14 @@ namespace Gameboy
             case 0xF0: return ld_a_n();
             case 0xF1: return pop_rr(af);
             case 0xF2: return ld_a_c();
-
+            case 0xF3: return di();
             case 0xF5: return push_rr(af);
             case 0xF6: return or_a_n();
 
             case 0xF8: return ld_hl_sp_dd();
             case 0xF9: return ld_sp_hl();
             case 0xFA: return ld_a_nn();
-
+            case 0xFB: return ei();
             case 0xFE: return cp_a_n();
 
             default: break;
@@ -1209,6 +1211,48 @@ namespace Gameboy
         op &= ~(1 << n);
         memory->write(hl, op);
         return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::ccf()
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(get_flag_c() ^ 1);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::scf()
+    {
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(true);
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::nop() { return {pc + 1, 4}; }
+
+    CPU::ExecuteResult CPU::halt()
+    {
+        // TODO implement halt behaviour
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::stop()
+    {
+        // TODO implement stop behaviour
+        return {pc + 2, 4};
+    }
+
+    CPU::ExecuteResult CPU::di()
+    {
+        ime = false;
+        return {pc + 1, 4};
+    }
+
+    CPU::ExecuteResult CPU::ei()
+    {
+        ime = true;
+        return {pc + 1, 4};
     }
 
     uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
