@@ -342,6 +342,198 @@ namespace Gameboy
             case 0x3D: return srl_r(L);
             case 0x3E: return srl_hl();
             case 0x3F: return srl_r(A);
+            case 0x40: return bit_n_r(0, B);
+            case 0x41: return bit_n_r(0, C);
+            case 0x42: return bit_n_r(0, D);
+            case 0x43: return bit_n_r(0, E);
+            case 0x44: return bit_n_r(0, H);
+            case 0x45: return bit_n_r(0, L);
+            case 0x46: return bit_n_hl(0);
+            case 0x47: return bit_n_r(0, A);
+            case 0x48: return bit_n_r(1, B);
+            case 0x49: return bit_n_r(1, C);
+            case 0x4A: return bit_n_r(1, D);
+            case 0x4B: return bit_n_r(1, E);
+            case 0x4C: return bit_n_r(1, H);
+            case 0x4D: return bit_n_r(1, L);
+            case 0x4E: return bit_n_hl(1);
+            case 0x4F: return bit_n_r(1, A);
+            case 0x50: return bit_n_r(2, B);
+            case 0x51: return bit_n_r(2, C);
+            case 0x52: return bit_n_r(2, D);
+            case 0x53: return bit_n_r(2, E);
+            case 0x54: return bit_n_r(2, H);
+            case 0x55: return bit_n_r(2, L);
+            case 0x56: return bit_n_hl(2);
+            case 0x57: return bit_n_r(2, A);
+            case 0x58: return bit_n_r(3, B);
+            case 0x59: return bit_n_r(3, C);
+            case 0x5A: return bit_n_r(3, D);
+            case 0x5B: return bit_n_r(3, E);
+            case 0x5C: return bit_n_r(3, H);
+            case 0x5D: return bit_n_r(3, L);
+            case 0x5E: return bit_n_hl(3);
+            case 0x5F: return bit_n_r(3, A);
+            case 0x60: return bit_n_r(4, B);
+            case 0x61: return bit_n_r(4, C);
+            case 0x62: return bit_n_r(4, D);
+            case 0x63: return bit_n_r(4, E);
+            case 0x64: return bit_n_r(4, H);
+            case 0x65: return bit_n_r(4, L);
+            case 0x66: return bit_n_hl(4);
+            case 0x67: return bit_n_r(4, A);
+            case 0x68: return bit_n_r(5, B);
+            case 0x69: return bit_n_r(5, C);
+            case 0x6A: return bit_n_r(5, D);
+            case 0x6B: return bit_n_r(5, E);
+            case 0x6C: return bit_n_r(5, H);
+            case 0x6D: return bit_n_r(5, L);
+            case 0x6E: return bit_n_hl(5);
+            case 0x6F: return bit_n_r(5, A);
+            case 0x70: return bit_n_r(6, B);
+            case 0x71: return bit_n_r(6, C);
+            case 0x72: return bit_n_r(6, D);
+            case 0x73: return bit_n_r(6, E);
+            case 0x74: return bit_n_r(6, H);
+            case 0x75: return bit_n_r(6, L);
+            case 0x76: return bit_n_hl(6);
+            case 0x77: return bit_n_r(6, A);
+            case 0x78: return bit_n_r(7, B);
+            case 0x79: return bit_n_r(7, C);
+            case 0x7A: return bit_n_r(7, D);
+            case 0x7B: return bit_n_r(7, E);
+            case 0x7C: return bit_n_r(7, H);
+            case 0x7D: return bit_n_r(7, L);
+            case 0x7E: return bit_n_hl(7);
+            case 0x7F: return bit_n_r(7, A);
+            case 0x80: return res_n_r(0, B);
+            case 0x81: return res_n_r(0, C);
+            case 0x82: return res_n_r(0, D);
+            case 0x83: return res_n_r(0, E);
+            case 0x84: return res_n_r(0, H);
+            case 0x85: return res_n_r(0, L);
+            case 0x86: return res_n_hl(0);
+            case 0x87: return res_n_r(0, A);
+            case 0x88: return res_n_r(1, B);
+            case 0x89: return res_n_r(1, C);
+            case 0x8A: return res_n_r(1, D);
+            case 0x8B: return res_n_r(1, E);
+            case 0x8C: return res_n_r(1, H);
+            case 0x8D: return res_n_r(1, L);
+            case 0x8E: return res_n_hl(1);
+            case 0x8F: return res_n_r(1, A);
+            case 0x90: return res_n_r(2, B);
+            case 0x91: return res_n_r(2, C);
+            case 0x92: return res_n_r(2, D);
+            case 0x93: return res_n_r(2, E);
+            case 0x94: return res_n_r(2, H);
+            case 0x95: return res_n_r(2, L);
+            case 0x96: return res_n_hl(2);
+            case 0x97: return res_n_r(2, A);
+            case 0x98: return res_n_r(3, B);
+            case 0x99: return res_n_r(3, C);
+            case 0x9A: return res_n_r(3, D);
+            case 0x9B: return res_n_r(3, E);
+            case 0x9C: return res_n_r(3, H);
+            case 0x9D: return res_n_r(3, L);
+            case 0x9E: return res_n_hl(3);
+            case 0x9F: return res_n_r(3, A);
+            case 0xA0: return res_n_r(4, B);
+            case 0xA1: return res_n_r(4, C);
+            case 0xA2: return res_n_r(4, D);
+            case 0xA3: return res_n_r(4, E);
+            case 0xA4: return res_n_r(4, H);
+            case 0xA5: return res_n_r(4, L);
+            case 0xA6: return res_n_hl(4);
+            case 0xA7: return res_n_r(4, A);
+            case 0xA8: return res_n_r(5, B);
+            case 0xA9: return res_n_r(5, C);
+            case 0xAA: return res_n_r(5, D);
+            case 0xAB: return res_n_r(5, E);
+            case 0xAC: return res_n_r(5, H);
+            case 0xAD: return res_n_r(5, L);
+            case 0xAE: return res_n_hl(5);
+            case 0xAF: return res_n_r(5, A);
+            case 0xB0: return res_n_r(6, B);
+            case 0xB1: return res_n_r(6, C);
+            case 0xB2: return res_n_r(6, D);
+            case 0xB3: return res_n_r(6, E);
+            case 0xB4: return res_n_r(6, H);
+            case 0xB5: return res_n_r(6, L);
+            case 0xB6: return res_n_hl(6);
+            case 0xB7: return res_n_r(6, A);
+            case 0xB8: return res_n_r(7, B);
+            case 0xB9: return res_n_r(7, C);
+            case 0xBA: return res_n_r(7, D);
+            case 0xBB: return res_n_r(7, E);
+            case 0xBC: return res_n_r(7, H);
+            case 0xBD: return res_n_r(7, L);
+            case 0xBE: return res_n_hl(7);
+            case 0xBF: return res_n_r(7, A);
+            case 0xC0: return set_n_r(0, B);
+            case 0xC1: return set_n_r(0, C);
+            case 0xC2: return set_n_r(0, D);
+            case 0xC3: return set_n_r(0, E);
+            case 0xC4: return set_n_r(0, H);
+            case 0xC5: return set_n_r(0, L);
+            case 0xC6: return set_n_hl(0);
+            case 0xC7: return set_n_r(0, A);
+            case 0xC8: return set_n_r(1, B);
+            case 0xC9: return set_n_r(1, C);
+            case 0xCA: return set_n_r(1, D);
+            case 0xCB: return set_n_r(1, E);
+            case 0xCC: return set_n_r(1, H);
+            case 0xCD: return set_n_r(1, L);
+            case 0xCE: return set_n_hl(1);
+            case 0xCF: return set_n_r(1, A);
+            case 0xD0: return set_n_r(2, B);
+            case 0xD1: return set_n_r(2, C);
+            case 0xD2: return set_n_r(2, D);
+            case 0xD3: return set_n_r(2, E);
+            case 0xD4: return set_n_r(2, H);
+            case 0xD5: return set_n_r(2, L);
+            case 0xD6: return set_n_hl(2);
+            case 0xD7: return set_n_r(2, A);
+            case 0xD8: return set_n_r(3, B);
+            case 0xD9: return set_n_r(3, C);
+            case 0xDA: return set_n_r(3, D);
+            case 0xDB: return set_n_r(3, E);
+            case 0xDC: return set_n_r(3, H);
+            case 0xDD: return set_n_r(3, L);
+            case 0xDE: return set_n_hl(3);
+            case 0xDF: return set_n_r(3, A);
+            case 0xE0: return set_n_r(4, B);
+            case 0xE1: return set_n_r(4, C);
+            case 0xE2: return set_n_r(4, D);
+            case 0xE3: return set_n_r(4, E);
+            case 0xE4: return set_n_r(4, H);
+            case 0xE5: return set_n_r(4, L);
+            case 0xE6: return set_n_hl(4);
+            case 0xE7: return set_n_r(4, A);
+            case 0xE8: return set_n_r(5, B);
+            case 0xE9: return set_n_r(5, C);
+            case 0xEA: return set_n_r(5, D);
+            case 0xEB: return set_n_r(5, E);
+            case 0xEC: return set_n_r(5, H);
+            case 0xED: return set_n_r(5, L);
+            case 0xEE: return set_n_hl(5);
+            case 0xEF: return set_n_r(5, A);
+            case 0xF0: return set_n_r(6, B);
+            case 0xF1: return set_n_r(6, C);
+            case 0xF2: return set_n_r(6, D);
+            case 0xF3: return set_n_r(6, E);
+            case 0xF4: return set_n_r(6, H);
+            case 0xF5: return set_n_r(6, L);
+            case 0xF6: return set_n_hl(6);
+            case 0xF7: return set_n_r(6, A);
+            case 0xF8: return set_n_r(7, B);
+            case 0xF9: return set_n_r(7, C);
+            case 0xFA: return set_n_r(7, D);
+            case 0xFB: return set_n_r(7, E);
+            case 0xFC: return set_n_r(7, H);
+            case 0xFD: return set_n_r(7, L);
+            case 0xFE: return set_n_hl(7);
+            case 0xFF: return set_n_r(7, A);
         }
     }
 
@@ -969,6 +1161,53 @@ namespace Gameboy
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(false);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::bit_n_r(uint8_t n, Register8 r)
+    {
+        bool bit = (r >> n) & 1;
+        set_flag_z(!bit);
+        set_flag_n(false);
+        set_flag_h(true);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::bit_n_hl(uint8_t n)
+    {
+        uint8_t op = memory->read(hl);
+        bool bit = (op >> n) & 1;
+        set_flag_z(!bit);
+        set_flag_n(false);
+        set_flag_h(true);
+        return {pc + 2, 12};
+    }
+
+    CPU::ExecuteResult CPU::set_n_r(uint8_t n, Register8 &r)
+    {
+        r |= 1 << n;
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::set_n_hl(uint8_t n)
+    {
+        uint8_t op = memory->read(hl);
+        op |= 1 << n;
+        memory->write(hl, op);
+        return {pc + 2, 16};
+    }
+
+    CPU::ExecuteResult CPU::res_n_r(uint8_t n, Register8 &r)
+    {
+        r &= ~(1 << n);
+        return {pc + 2, 8};
+    }
+
+    CPU::ExecuteResult CPU::res_n_hl(uint8_t n)
+    {
+        uint8_t op = memory->read(hl);
+        op &= ~(1 << n);
+        memory->write(hl, op);
         return {pc + 2, 16};
     }
 

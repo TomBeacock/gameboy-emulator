@@ -143,6 +143,14 @@ namespace Gameboy
         ExecuteResult swap_r(Register8 &r);
         ExecuteResult swap_hl();
 
+        // Single-bit operation instructions
+        ExecuteResult bit_n_r(uint8_t n, Register8 r);
+        ExecuteResult bit_n_hl(uint8_t n);
+        ExecuteResult set_n_r(uint8_t n, Register8 &r);
+        ExecuteResult set_n_hl(uint8_t n);
+        ExecuteResult res_n_r(uint8_t n, Register8 &r);
+        ExecuteResult res_n_hl(uint8_t n);
+
         uint8_t read_next_8() const;
         uint16_t read_next_16() const;
         uint8_t add_f(uint8_t a, uint8_t b);
