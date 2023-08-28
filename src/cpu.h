@@ -205,6 +205,7 @@ namespace Gameboy
       private:
         Register16 af, bc, de, hl;
         Register16 sp, pc;
+        bool halted;
         bool ime;
         Memory *memory;
         Display *display;
