@@ -2,5 +2,5 @@
 
 namespace Gameboy
 {
-    Memory::Memory() : memory(new uint8_t[0xFFFF]) {}
+    Memory::Memory() : memory(new u8[0xFFFF]) {}
 } // namespace Gameboy

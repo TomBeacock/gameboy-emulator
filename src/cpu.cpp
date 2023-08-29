@@ -38,7 +38,7 @@ namespace Gameboy
 
     CPU::Instruction CPU::fetch(bool &prefixed)
     {
-        uint8_t inst = memory->read(pc);
+        u8 inst = memory->read(pc);
         prefixed = inst == 0xCB;
         if (prefixed) {
             inst = memory->read(pc + 1);
@@ -567,7 +567,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::ld_r_n(Register8 &dst)
     {
-        uint8_t value = read_next_8();
+        u8 value = read_next_8();
         dst = value;
         return {static_cast<Address>(pc + 2), 8};
     }
@@ -586,7 +586,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::ld_hl_n()
     {
-        uint8_t value = read_next_8();
+        u8 value = read_next_8();
         memory->write(hl, value);
         return {static_cast<Address>(pc + 2), 12};
     }
@@ -607,14 +607,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::ld_a_n()
     {
-        uint8_t offset = read_next_8();
+        u8 offset = read_next_8();
         A = memory->read_io(offset);
         return {static_cast<Address>(pc + 2), 12};
     }
 
     CPU::ExecuteResult CPU::ld_n_a()
     {
-        uint8_t offset = read_next_8();
+        u8 offset = read_next_8();
         memory->write_io(offset, A);
         return {static_cast<Address>(pc + 2), 12};
     }
@@ -661,7 +661,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::ld_rr_nn(Register16 &dst)
     {
-        uint16_t value = read_next_16();
+        u16 value = read_next_16();
         dst = value;
         Address next = static_cast<Address>(pc + 3);
         return {static_cast<Address>(pc + 3), 12};
@@ -706,14 +706,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::add_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = add_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::add_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = add_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -726,14 +726,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::adc_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = adc_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::adc_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = adc_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -746,14 +746,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::sub_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = sub_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::sub_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = sub_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -766,14 +766,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::sbc_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = sbc_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::sbc_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = sbc_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -786,14 +786,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::and_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = and_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::and_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = and_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -806,14 +806,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::xor_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = xor_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::xor_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = xor_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -826,14 +826,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::or_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         A = or_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::or_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         A = or_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -846,14 +846,14 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::cp_a_n()
     {
-        uint8_t n = read_next_8();
+        u8 n = read_next_8();
         cp_f(A, n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
     CPU::ExecuteResult CPU::cp_a_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         cp_f(A, op);
         return {static_cast<Address>(pc + 1), 8};
     }
@@ -866,7 +866,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::inc_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         memory->write(hl, inc_f(op));
         return {static_cast<Address>(pc + 1), 12};
     }
@@ -879,7 +879,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::dec_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         memory->write(hl, dec_f(op));
         return {static_cast<Address>(pc + 1), 12};
     }
@@ -935,7 +935,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::add_sp_dd()
     {
-        uint8_t op = read_next_8();
+        u8 op = read_next_8();
         bool sign = BIT_7(op);
         sp.lo() = add_f(sp.lo(), op);
         if (get_flag_c() && !sign) {
@@ -951,7 +951,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::ld_hl_sp_dd()
     {
-        uint8_t op = read_next_8();
+        u8 op = read_next_8();
         bool sign = op & 0x80;
         hl = sp;
         hl.lo() = add_f(hl.lo(), op);
@@ -978,7 +978,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rla()
     {
-        uint8_t carry = get_flag_c();
+        u8 carry = get_flag_c();
         set_flag_z(false);
         set_flag_n(false);
         set_flag_h(false);
@@ -999,7 +999,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rra()
     {
-        uint8_t carry = get_flag_c();
+        u8 carry = get_flag_c();
         set_flag_z(false);
         set_flag_n(false);
         set_flag_h(false);
@@ -1020,7 +1020,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rlc_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_7(op));
@@ -1032,7 +1032,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rl_r(Register8 &r)
     {
-        uint8_t carry = get_flag_c();
+        u8 carry = get_flag_c();
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_7(r));
@@ -1043,8 +1043,8 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rl_hl()
     {
-        uint8_t op = memory->read(hl);
-        uint8_t carry = get_flag_c();
+        u8 op = memory->read(hl);
+        u8 carry = get_flag_c();
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_7(op));
@@ -1066,7 +1066,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rrc_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_0(op));
@@ -1078,7 +1078,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rr_r(Register8 &r)
     {
-        uint8_t carry = get_flag_c();
+        u8 carry = get_flag_c();
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_0(r));
@@ -1089,8 +1089,8 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::rr_hl()
     {
-        uint8_t op = memory->read(hl);
-        uint8_t carry = get_flag_c();
+        u8 op = memory->read(hl);
+        u8 carry = get_flag_c();
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_0(op));
@@ -1112,7 +1112,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::sla_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_7(op));
@@ -1134,7 +1134,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::sra_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_0(op));
@@ -1156,7 +1156,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::srl_hl()
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(BIT_0(op));
@@ -1168,7 +1168,7 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::swap_r(Register8 &r)
     {
-        uint8_t hi = HI(r);
+        u8 hi = HI(r);
         r = r << 4 | hi >> 4;
         set_flag_z(r == 0);
         set_flag_n(false);
@@ -1179,8 +1179,8 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::swap_hl()
     {
-        uint8_t op = memory->read(hl);
-        uint8_t hi = HI(op);
+        u8 op = memory->read(hl);
+        u8 hi = HI(op);
         op = op << 4 | hi >> 4;
         memory->write(hl, op);
         set_flag_z(op == 0);
@@ -1190,7 +1190,7 @@ namespace Gameboy
         return {static_cast<Address>(pc + 2), 16};
     }
 
-    CPU::ExecuteResult CPU::bit_n_r(uint8_t n, Register8 r)
+    CPU::ExecuteResult CPU::bit_n_r(u8 n, Register8 r)
     {
         bool bit = (r >> n) & 1;
         set_flag_z(!bit);
@@ -1199,9 +1199,9 @@ namespace Gameboy
         return {static_cast<Address>(pc + 2), 8};
     }
 
-    CPU::ExecuteResult CPU::bit_n_hl(uint8_t n)
+    CPU::ExecuteResult CPU::bit_n_hl(u8 n)
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         bool bit = (op >> n) & 1;
         set_flag_z(!bit);
         set_flag_n(false);
@@ -1209,29 +1209,29 @@ namespace Gameboy
         return {static_cast<Address>(pc + 2), 12};
     }
 
-    CPU::ExecuteResult CPU::set_n_r(uint8_t n, Register8 &r)
+    CPU::ExecuteResult CPU::set_n_r(u8 n, Register8 &r)
     {
         r |= 1 << n;
         return {static_cast<Address>(pc + 2), 8};
     }
 
-    CPU::ExecuteResult CPU::set_n_hl(uint8_t n)
+    CPU::ExecuteResult CPU::set_n_hl(u8 n)
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         op |= 1 << n;
         memory->write(hl, op);
         return {static_cast<Address>(pc + 2), 16};
     }
 
-    CPU::ExecuteResult CPU::res_n_r(uint8_t n, Register8 &r)
+    CPU::ExecuteResult CPU::res_n_r(u8 n, Register8 &r)
     {
         r &= ~(1 << n);
         return {static_cast<Address>(pc + 2), 8};
     }
 
-    CPU::ExecuteResult CPU::res_n_hl(uint8_t n)
+    CPU::ExecuteResult CPU::res_n_hl(u8 n)
     {
-        uint8_t op = memory->read(hl);
+        u8 op = memory->read(hl);
         op &= ~(1 << n);
         memory->write(hl, op);
         return {static_cast<Address>(pc + 2), 16};
@@ -1281,13 +1281,13 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::jp_nn()
     {
-        uint16_t nn = read_next_16();
+        u16 nn = read_next_16();
         return {nn, 16};
     }
 
     CPU::ExecuteResult CPU::jp_hl() { return {hl, 4}; }
 
-    CPU::ExecuteResult CPU::jp_f_nn(uint8_t flag, bool value)
+    CPU::ExecuteResult CPU::jp_f_nn(u8 flag, bool value)
     {
         if (get_flag(flag) == value) {
             return jp_nn();
@@ -1297,11 +1297,11 @@ namespace Gameboy
 
     CPU::ExecuteResult CPU::jr_dd()
     {
-        int8_t dd = read_next_8();
+        i8 dd = read_next_8();
         return {static_cast<Address>(pc + 2 + dd), 12};
     }
 
-    CPU::ExecuteResult CPU::jr_f_dd(uint8_t flag, bool value)
+    CPU::ExecuteResult CPU::jr_f_dd(u8 flag, bool value)
     {
         if (get_flag(flag) == value) {
             return jr_dd();
@@ -1316,11 +1316,11 @@ namespace Gameboy
         memory->write(sp - 2, return_pc.lo());
         sp = sp - 2;
 
-        uint16_t nn = read_next_16();
+        u16 nn = read_next_16();
         return {nn, 24};
     }
 
-    CPU::ExecuteResult CPU::call_f_nn(uint8_t flag, bool value)
+    CPU::ExecuteResult CPU::call_f_nn(u8 flag, bool value)
     {
         if (get_flag(flag) == value) {
             return call_nn();
@@ -1337,7 +1337,7 @@ namespace Gameboy
         return {return_pc, 16};
     }
 
-    CPU::ExecuteResult CPU::ret_f(uint8_t flag, bool value)
+    CPU::ExecuteResult CPU::ret_f(u8 flag, bool value)
     {
         if (get_flag(flag) == value) {
             Register16 return_pc;
@@ -1355,7 +1355,7 @@ namespace Gameboy
         return ret();
     }
 
-    CPU::ExecuteResult CPU::rst_n(uint8_t n)
+    CPU::ExecuteResult CPU::rst_n(u8 n)
     {
         Register16 return_pc = pc + 1;
         memory->write(sp - 1, return_pc.hi());
@@ -1364,46 +1364,46 @@ namespace Gameboy
         return {n, 24};
     }
 
-    uint8_t CPU::read_next_8() const { return memory->read(pc + 1); }
+    u8 CPU::read_next_8() const { return memory->read(pc + 1); }
 
-    uint16_t CPU::read_next_16() const
+    u16 CPU::read_next_16() const
     {
-        return (uint16_t)memory->read(pc + 1) | (uint16_t)memory->read(pc + 2) << 8;
+        return (u16)memory->read(pc + 1) | (u16)memory->read(pc + 2) << 8;
     }
 
-    uint8_t CPU::add_f(uint8_t a, uint8_t b)
+    u8 CPU::add_f(u8 a, u8 b)
     {
-        uint16_t res = (uint16_t)a + (uint16_t)b;
-        set_flag_z((uint8_t)res == 0);
+        u16 res = (u16)a + (u16)b;
+        set_flag_z((u8)res == 0);
         set_flag_n(false);
         set_flag_h(LO(a) + LO(b) > 0xF);
         set_flag_c(res > 0xFF);
         return res;
     }
 
-    uint16_t CPU::add_f(uint16_t a, uint16_t b)
+    u16 CPU::add_f(u16 a, u16 b)
     {
-        uint32_t res = (uint32_t)a + (uint32_t)b;
+        u32 res = (u32)a + (u32)b;
         set_flag_n(false);
         set_flag_h((((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000);
         set_flag_c(res > 0xFFFF);
         return res;
     }
 
-    uint8_t CPU::adc_f(uint8_t a, uint8_t b)
+    u8 CPU::adc_f(u8 a, u8 b)
     {
-        uint8_t c = get_flag_c();
-        uint16_t res = (uint16_t)a + (uint16_t)b + c;
-        set_flag_z((uint8_t)res == 0);
+        u8 c = get_flag_c();
+        u16 res = (u16)a + (u16)b + c;
+        set_flag_z((u8)res == 0);
         set_flag_n(false);
         set_flag_h(LO(a) + LO(b) + c > 0xF);
         set_flag_c(res > 0xFF);
         return res;
     }
 
-    uint8_t CPU::sub_f(uint8_t a, uint8_t b)
+    u8 CPU::sub_f(u8 a, u8 b)
     {
-        uint8_t res = a - b;
+        u8 res = a - b;
         set_flag_z(res == 0);
         set_flag_n(true);
         set_flag_h(LO(a) < LO(b));
@@ -1411,10 +1411,10 @@ namespace Gameboy
         return res;
     }
 
-    uint8_t CPU::sbc_f(uint8_t a, uint8_t b)
+    u8 CPU::sbc_f(u8 a, u8 b)
     {
-        uint8_t c = get_flag_c();
-        uint8_t res = a - b - c;
+        u8 c = get_flag_c();
+        u8 res = a - b - c;
         set_flag_z(res == 0);
         set_flag_n(true);
         set_flag_h(LO(a) < LO(b) + c);
@@ -1422,9 +1422,9 @@ namespace Gameboy
         return res;
     }
 
-    uint8_t CPU::and_f(uint8_t a, uint8_t b)
+    u8 CPU::and_f(u8 a, u8 b)
     {
-        uint8_t res = a & b;
+        u8 res = a & b;
         set_flag_z(res == 0);
         set_flag_n(false);
         set_flag_h(true);
@@ -1432,9 +1432,9 @@ namespace Gameboy
         return res;
     }
 
-    uint8_t CPU::xor_f(uint8_t a, uint8_t b)
+    u8 CPU::xor_f(u8 a, u8 b)
     {
-        uint8_t res = a ^ b;
+        u8 res = a ^ b;
         set_flag_z(res == 0);
         set_flag_n(false);
         set_flag_h(false);
@@ -1442,9 +1442,9 @@ namespace Gameboy
         return res;
     }
 
-    uint8_t CPU::or_f(uint8_t a, uint8_t b)
+    u8 CPU::or_f(u8 a, u8 b)
     {
-        uint8_t res = a | b;
+        u8 res = a | b;
         set_flag_z(res == 0);
         set_flag_n(false);
         set_flag_h(false);
@@ -1452,27 +1452,27 @@ namespace Gameboy
         return res;
     }
 
-    void CPU::cp_f(uint8_t a, uint8_t b)
+    void CPU::cp_f(u8 a, u8 b)
     {
-        uint8_t res = a - b;
+        u8 res = a - b;
         set_flag_z(res == 0);
         set_flag_n(true);
         set_flag_h(LO(a) < LO(b));
         set_flag_c(a < b);
     }
 
-    uint8_t CPU::inc_f(uint8_t a)
+    u8 CPU::inc_f(u8 a)
     {
-        uint8_t res = a + 1;
+        u8 res = a + 1;
         set_flag_z(res == 0);
         set_flag_n(false);
         set_flag_h(LO(a) + 1 > 0xF);
         return res;
     }
 
-    uint8_t CPU::dec_f(uint8_t a)
+    u8 CPU::dec_f(u8 a)
     {
-        uint8_t res = a - 1;
+        u8 res = a - 1;
         set_flag_z(res == 0);
         set_flag_n(true);
         set_flag_h(LO(a) < 1);

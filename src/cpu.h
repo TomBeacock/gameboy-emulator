@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <utility>
+#include "types.h"
 
 namespace Gameboy
 {
@@ -11,9 +10,9 @@ namespace Gameboy
     class CPU
     {
       private:
-        typedef uint8_t Register8;
-        typedef uint16_t Address;
-        typedef uint8_t Instruction;
+        typedef u8 Register8;
+        typedef u16 Address;
+        typedef u8 Instruction;
 
         struct ExecuteResult {
             Address next_pc;
@@ -28,15 +27,15 @@ namespace Gameboy
         {
           public:
             Register16() : reg_hi(0), reg_lo(0) {}
-            Register16(uint16_t value) : reg_hi(value >> 8), reg_lo(value) {}
+            Register16(u16 value) : reg_hi(value >> 8), reg_lo(value) {}
 
             Register8 &hi() { return reg_hi; }
             Register8 hi() const { return reg_hi; }
             Register8 &lo() { return reg_lo; }
             Register8 lo() const { return reg_lo; }
 
-            operator uint16_t() const { return (uint16_t)reg_hi << 8 | reg_lo; }
-            Register16 &operator=(uint16_t value)
+            operator u16() const { return (u16)reg_hi << 8 | reg_lo; }
+            Register16 &operator=(u16 value)
             {
                 reg_hi = value >> 8;
                 reg_lo = value;
@@ -144,12 +143,12 @@ namespace Gameboy
         ExecuteResult swap_hl();
 
         // Single-bit operation instructions
-        ExecuteResult bit_n_r(uint8_t n, Register8 r);
-        ExecuteResult bit_n_hl(uint8_t n);
-        ExecuteResult set_n_r(uint8_t n, Register8 &r);
-        ExecuteResult set_n_hl(uint8_t n);
-        ExecuteResult res_n_r(uint8_t n, Register8 &r);
-        ExecuteResult res_n_hl(uint8_t n);
+        ExecuteResult bit_n_r(u8 n, Register8 r);
+        ExecuteResult bit_n_hl(u8 n);
+        ExecuteResult set_n_r(u8 n, Register8 &r);
+        ExecuteResult set_n_hl(u8 n);
+        ExecuteResult res_n_r(u8 n, Register8 &r);
+        ExecuteResult res_n_hl(u8 n);
 
         // CPU control instructions
         ExecuteResult ccf();
@@ -163,29 +162,29 @@ namespace Gameboy
         // Jump instructions
         ExecuteResult jp_nn();
         ExecuteResult jp_hl();
-        ExecuteResult jp_f_nn(uint8_t flag, bool value);
+        ExecuteResult jp_f_nn(u8 flag, bool value);
         ExecuteResult jr_dd();
-        ExecuteResult jr_f_dd(uint8_t flag, bool value);
+        ExecuteResult jr_f_dd(u8 flag, bool value);
         ExecuteResult call_nn();
-        ExecuteResult call_f_nn(uint8_t flag, bool value);
+        ExecuteResult call_f_nn(u8 flag, bool value);
         ExecuteResult ret();
-        ExecuteResult ret_f(uint8_t flag, bool value);
+        ExecuteResult ret_f(u8 flag, bool value);
         ExecuteResult reti();
-        ExecuteResult rst_n(uint8_t n);
+        ExecuteResult rst_n(u8 n);
 
-        uint8_t read_next_8() const;
-        uint16_t read_next_16() const;
-        uint8_t add_f(uint8_t a, uint8_t b);
-        uint16_t add_f(uint16_t a, uint16_t b);
-        uint8_t adc_f(uint8_t a, uint8_t b);
-        uint8_t sub_f(uint8_t a, uint8_t b);
-        uint8_t sbc_f(uint8_t a, uint8_t b);
-        uint8_t and_f(uint8_t a, uint8_t b);
-        uint8_t xor_f(uint8_t a, uint8_t b);
-        uint8_t or_f(uint8_t a, uint8_t b);
-        void cp_f(uint8_t a, uint8_t b);
-        uint8_t inc_f(uint8_t a);
-        uint8_t dec_f(uint8_t a);
+        u8 read_next_8() const;
+        u16 read_next_16() const;
+        u8 add_f(u8 a, u8 b);
+        u16 add_f(u16 a, u16 b);
+        u8 adc_f(u8 a, u8 b);
+        u8 sub_f(u8 a, u8 b);
+        u8 sbc_f(u8 a, u8 b);
+        u8 and_f(u8 a, u8 b);
+        u8 xor_f(u8 a, u8 b);
+        u8 or_f(u8 a, u8 b);
+        void cp_f(u8 a, u8 b);
+        u8 inc_f(u8 a);
+        u8 dec_f(u8 a);
 
         bool get_flag_z() const { return get_flag(7); }
         void set_flag_z(bool value) { set_flag(7, value); }
@@ -196,8 +195,8 @@ namespace Gameboy
         bool get_flag_c() const { return get_flag(4); }
         void set_flag_c(bool value) { set_flag(4, value); }
 
-        bool get_flag(uint8_t flag) const { return af.lo() >> flag & 1; }
-        void set_flag(uint8_t flag, bool value)
+        bool get_flag(u8 flag) const { return af.lo() >> flag & 1; }
+        void set_flag(u8 flag, bool value)
         {
             af.lo() = (af.lo() & ~(1 << flag)) | (value << flag);
         }

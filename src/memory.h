@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "types.h"
 
 namespace Gameboy
 {
@@ -9,13 +9,13 @@ namespace Gameboy
       public:
         Memory();
 
-        uint8_t read(uint16_t address) const { return memory[address]; }
-        uint8_t read_io(uint8_t offset) const { return memory[0xFF00 + offset]; }
+        u8 read(u16 address) const { return memory[address]; }
+        u8 read_io(u8 offset) const { return memory[0xFF00 + offset]; }
 
-        void write(uint16_t address, uint8_t value) { memory[address] = value; }
-        void write_io(uint8_t offset, uint8_t value) { memory[0xFF00 + offset] = value; }
+        void write(u16 address, u8 value) { memory[address] = value; }
+        void write_io(u8 offset, u8 value) { memory[0xFF00 + offset] = value; }
 
       private:
-        uint8_t *memory;
+        u8 *memory;
     };
 } // namespace Gameboy

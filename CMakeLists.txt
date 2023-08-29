@@ -7,6 +7,7 @@ add_subdirectory("external/glfw")
 
 add_executable(gameboy
 	"src/main.cpp" 
+	"src/types.h"
 	"src/cpu.h" "src/cpu.cpp"
 	"src/memory.h" "src/memory.cpp"
 	"src/display.h"
