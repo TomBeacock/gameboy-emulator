@@ -4,10 +4,10 @@
 
 namespace Gameboy
 {
-    class Memory
+    class MMU
     {
       public:
-        Memory();
+        MMU();
 
         u8 read(u16 address) const { return memory[address]; }
         u8 read_io(u8 offset) const { return memory[0xFF00 + offset]; }

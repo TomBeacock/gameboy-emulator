@@ -1,7 +1,7 @@
 #include "cpu.h"
 
 #include "display.h"
-#include "memory.h"
+#include "mmu.h"
 
 #define A af.hi()
 #define F af.lo()
@@ -33,7 +33,7 @@
 
 namespace Gameboy
 {
-    CPU::CPU(Memory *memory, Display *display) : memory(memory), display(display) {}
+    CPU::CPU(MMU *memory, Display *display) : memory(memory), display(display) {}
 
     unsigned int CPU::step()
     {
@@ -311,8 +311,8 @@ namespace Gameboy
             case 0xFB: return ei();
             case 0xFE: return cp_a_n();
             case 0xFF: return rst_n(0x38);
-            default: break;
         }
+        return nop();
     }
 
     CPU::ExecuteResult CPU::decode_16bit(Instruction instruction)
@@ -575,6 +575,7 @@ namespace Gameboy
             case 0xFE: return set_n_hl(7);
             case 0xFF: return set_n_r(7, A);
         }
+        return nop();
     }
 
     std::optional<u8> CPU::check_interrupts() 
@@ -728,8 +729,8 @@ namespace Gameboy
     CPU::ExecuteResult CPU::ld_nn_sp()
     {
         Address addr = read_next_16();
-        memory->write(addr, sp);
-        memory->write(addr + 1, sp >> 8);
+        memory->write(addr, sp.lo());
+        memory->write(addr + 1, sp.hi());
         return {static_cast<Address>(pc + 3), 20};
     }
 
@@ -1436,7 +1437,7 @@ namespace Gameboy
         set_flag_n(false);
         set_flag_h(LO(a) + LO(b) > 0xF);
         set_flag_c(res > 0xFF);
-        return res;
+        return (u8)res;
     }
 
     u16 CPU::add_f(u16 a, u16 b)
@@ -1456,7 +1457,7 @@ namespace Gameboy
         set_flag_n(false);
         set_flag_h(LO(a) + LO(b) + c > 0xF);
         set_flag_c(res > 0xFF);
-        return res;
+        return (u8)res;
     }
 
     u8 CPU::sub_f(u8 a, u8 b)

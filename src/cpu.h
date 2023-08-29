@@ -6,7 +6,7 @@
 
 namespace Gameboy
 {
-    class Memory;
+    class MMU;
     class Display;
 
     class CPU
@@ -29,7 +29,7 @@ namespace Gameboy
         {
           public:
             Register16() : reg_hi(0), reg_lo(0) {}
-            Register16(u16 value) : reg_hi(value >> 8), reg_lo(value) {}
+            Register16(u16 value) : reg_hi((u8)(value >> 8)), reg_lo((u8)value) {}
 
             Register8 &hi() { return reg_hi; }
             Register8 hi() const { return reg_hi; }
@@ -39,8 +39,8 @@ namespace Gameboy
             operator u16() const { return (u16)reg_hi << 8 | reg_lo; }
             Register16 &operator=(u16 value)
             {
-                reg_hi = value >> 8;
-                reg_lo = value;
+                reg_hi = (u8)(value >> 8);
+                reg_lo = (u8)value;
                 return *this;
             }
 
@@ -50,7 +50,7 @@ namespace Gameboy
         };
 
       public:
-        CPU(Memory *memory, Display *display);
+        CPU(MMU *memory, Display *display);
 
         unsigned int step();
 
@@ -211,7 +211,7 @@ namespace Gameboy
         Register16 sp, pc;
         bool halted = false;
         bool ime = true;
-        Memory *memory;
+        MMU *memory;
         Display *display;
     };
 } // namespace Gameboy

@@ -1,6 +1,6 @@
 #include "cpu.h"
 #include "display.h"
-#include "memory.h"
+#include "mmu.h"
 
 #include <GLFW/glfw3.h>
 
@@ -9,7 +9,7 @@ using namespace Gameboy;
 int main(int argc, char** argv)
 {
     Display display;
-    Memory memory;
+    MMU memory;
     CPU cpu(&memory, &display);
 
     glfwInit();

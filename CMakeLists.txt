@@ -9,7 +9,8 @@ add_executable(gameboy
 	"src/main.cpp" 
 	"src/types.h"
 	"src/cpu.h" "src/cpu.cpp"
-	"src/memory.h" "src/memory.cpp"
+	"src/mmu.h" "src/mmu.cpp"
+	"src/ppu.h" "src/ppu.cpp"
 	"src/display.h"
 )
 set_target_properties(gameboy PROPERTIES CXX_STANDARD 20)
