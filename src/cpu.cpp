@@ -17,23 +17,41 @@
 #define FLAG_H 5
 #define FLAG_C 4
 
+#define I_VBLANK 0
+#define I_LCD_STAT 1
+#define I_TIMER 2
+#define I_SERIAL 3
+#define I_JOYPAD 4
+
 #define BIT_0(n) (n & 0b00000001)
 #define BIT_7(n) (n & 0b10000000)
 
 #define HI(n) (n & 0xF0)
 #define LO(n) (n & 0x0F)
 
+#define FLAG_SET(value, n) (value & 1 << n)
+
 namespace Gameboy
 {
     CPU::CPU(Memory *memory, Display *display) : memory(memory), display(display) {}
 
-    unsigned int CPU::cycle()
+    unsigned int CPU::step()
     {
+        unsigned int cycles = 0;
+
+        // Fetch-decode-execute
         bool prefixed;
         Instruction instruction = fetch(prefixed);
         ExecuteResult result = prefixed ? decode_16bit(instruction) : decode_8bit(instruction);
         pc = result.next_pc;
-        return result.cycles;
+        cycles += result.cycles;
+
+        // Interrupts
+        if (auto interrupt = check_interrupts()) {
+            cycles += interrupt_service_routine(*interrupt);
+        }
+
+        return cycles;
     }
 
     CPU::Instruction CPU::fetch(bool &prefixed)
@@ -557,6 +575,46 @@ namespace Gameboy
             case 0xFE: return set_n_hl(7);
             case 0xFF: return set_n_r(7, A);
         }
+    }
+
+    std::optional<u8> CPU::check_interrupts() 
+    {
+        // Check interrupt master enable
+        if (!ime) {
+            return std::nullopt;
+        }
+
+        // Check each interrupt bit
+        u8 interrupt_enable = memory->read(0xFFFF);
+        u8 interrupt_flag = memory->read(0xFF0F);
+        for (u8 i = 0; i <= I_JOYPAD; i++) {
+            if (FLAG_SET(interrupt_enable, i) && FLAG_SET(interrupt_flag, i)) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    }
+
+    unsigned int CPU::interrupt_service_routine(u8 interrupt)
+    {
+        // Acknowledge interupt
+        u8 interrupt_flag = memory->read(0xFF0F);
+        interrupt_flag &= ~(1 << interrupt);
+        memory->write(0xFF0F, interrupt_flag);
+
+        // Disable further interupt handling
+        ime = false;
+
+        // Write PC to stack
+        memory->write(sp - 1, pc.hi());
+        memory->write(sp - 2, pc.lo());
+        sp = sp - 2;
+
+        // Jump to interrupt handler
+        Address interrupt_handler = 0x40 + 8 * interrupt;
+        pc = interrupt_handler;
+
+        return 20;
     }
 
     CPU::ExecuteResult CPU::ld_r_r(Register8 &dst, Register8 src)

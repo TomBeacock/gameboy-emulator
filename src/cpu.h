@@ -2,6 +2,8 @@
 
 #include "types.h"
 
+#include <optional>
+
 namespace Gameboy
 {
     class Memory;
@@ -50,12 +52,15 @@ namespace Gameboy
       public:
         CPU(Memory *memory, Display *display);
 
-        unsigned int cycle();
+        unsigned int step();
 
       private:
         Instruction fetch(bool &prefixed);
         ExecuteResult decode_8bit(Instruction instruction);
         ExecuteResult decode_16bit(Instruction instruction);
+
+        std::optional<u8> check_interrupts();
+        unsigned int interrupt_service_routine(u8 interupt);
 
         // 8-bit load instructions
         ExecuteResult ld_r_r(Register8 &dst, Register8 src);
@@ -204,8 +209,8 @@ namespace Gameboy
       private:
         Register16 af, bc, de, hl;
         Register16 sp, pc;
-        bool halted;
-        bool ime;
+        bool halted = false;
+        bool ime = true;
         Memory *memory;
         Display *display;
     };
